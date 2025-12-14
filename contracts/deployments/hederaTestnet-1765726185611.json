@@ -1,0 +1,13 @@
+{
+  "network": "hederaTestnet",
+  "contractAddress": "0x1a692612d215016b7B625dD0F367B123Fe3bD265",
+  "timestamp": "2025-12-14T15:29:45.611Z",
+  "deployer": "0xF586D221DA1565D80B9244877979C16CF5d68D17",
+  "bettingEnd": 1734192000,
+  "virtualPools": {
+    "teamA": "100.0",
+    "draw": "50.0",
+    "teamB": "100.0"
+  },
+  "transactionHash": "0x68ab387b1bd6b6768f225fa59543169a7fe1d719b859b6361c4a4266b7f313ef"
+}
