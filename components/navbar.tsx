@@ -47,7 +47,7 @@ function Navbar() {
   const { theme } = useTheme();
 
   return (
-    <div className="mt-2 flex items-center justify-between mx-2">
+    <div className="mt-2 flex items-center justify-between">
       <Link href="/" className="flex items-center gap-2">
         <h1 className="text-2xl font-bold font-sans lowercase">FPLDuel</h1>
       </Link>
