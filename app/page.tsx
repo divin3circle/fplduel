@@ -56,7 +56,7 @@ export default function Home() {
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute top-0 left-0 w-full h-full bg-black/40 rounded-2xl"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-black/10 rounded-2xl"></div>
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-start justify-between px-2">
           <div className="p-4 flex flex-col gap-2">
             <GiftIcon className="w-10 h-10 text-green-500" />
@@ -76,13 +76,13 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center gap-2 p-4 w-full md:w-1/2">
             <Button
               variant="default"
-              className="rounded-2xl font-sans font-semibold text-sm shadow-none lowercase w-full md:w-auto min-w-[150px]"
+              className="rounded-2xl font-sans font-semibold text-sm shadow-none w-full md:w-auto min-w-[150px]"
             >
               <p>Get Started</p>
             </Button>
             <Link
               href="/"
-              className="text-muted-foreground font-semibold hover:underline font-sans "
+              className="text-gray-300 font-semibold hover:underline font-sans "
             >
               Terms and Conditions
             </Link>
