@@ -3,15 +3,15 @@ import { Matchup } from "@/lib/utils";
 import { ChevronsRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+
+export function getTeamLogo(teamId: number, teamType: "home" | "away") {
+  if (teamType === "home") {
+    return HOME_TEAMS[teamId - 1];
+  }
+  return AWAY_TEAMS[teamId - 5 - 1];
+}
 
 function MatchupCard({ matchup }: { matchup: Matchup }) {
-  function getTeamLogo(teamId: number, teamType: "home" | "away") {
-    if (teamType === "home") {
-      return HOME_TEAMS[teamId - 1];
-    }
-    return AWAY_TEAMS[teamId - 5 - 1];
-  }
   function formatValue(value: number): string {
     const actualValue = value / 10;
     return `£${actualValue.toFixed(2)}`;
@@ -96,7 +96,7 @@ function MatchupCard({ matchup }: { matchup: Matchup }) {
       </div>
       <div className="mt-2 flex items-center justify-center">
         <Link
-          href={`/matchup/${matchup.home.id}`}
+          href={`/matchup/${matchup.id}`}
           className="flex items-center justify-center text-sm font-semibold font-sans text-muted-foreground hover:text-foreground transition-all duration-200 group"
         >
           View More

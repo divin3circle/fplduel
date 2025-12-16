@@ -6,6 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export interface Matchup {
+  id: number;
   home: {
     id: number;
     entry: number;
@@ -109,22 +110,27 @@ const TOP_TEAMS = [
 
 export const MATCHUPS = [
   {
+    id: 1,
     home: TOP_TEAMS[0],
     away: TOP_TEAMS[TOP_TEAMS.length - 1],
   },
   {
+    id: 2,
     home: TOP_TEAMS[1],
     away: TOP_TEAMS[TOP_TEAMS.length - 2],
   },
   {
+    id: 3,
     home: TOP_TEAMS[2],
     away: TOP_TEAMS[TOP_TEAMS.length - 3],
   },
   {
+    id: 4,
     home: TOP_TEAMS[3],
     away: TOP_TEAMS[TOP_TEAMS.length - 4],
   },
   {
+    id: 5,
     home: TOP_TEAMS[4],
     away: TOP_TEAMS[TOP_TEAMS.length - 5],
   },

@@ -67,20 +67,17 @@ function Navbar() {
               });
             } else {
               connect(async () => {
-                // create a wallet instance
-                const metamask = createWallet("io.metamask"); // autocomplete the wallet id
-                // trigger the connection
+                const metamask = createWallet("io.metamask");
                 await metamask.connect({ client });
-                // return the wallet
                 return metamask;
               });
             }
           }}
-          className="rounded-2xl font-sans font-semibold text-sm shadow-none lowercase w-auto md:w-[150px] border border-foreground/20 p-2"
+          className="rounded-2xl font-sans font-semibold text-sm shadow-none lowercase w-auto md:w-[150px] border border-foreground/20 p-2 flex items-center justify-center gap-2"
         >
-          {isConnecting && <Loader2 className="animate-spin" />}
+          {isConnecting && <Loader2 className="animate-spin" size="10" />}
           {activeAccount && <ConnectedView />}
-          {!activeAccount && "Connect"}
+          {!activeAccount && !isConnecting && "Connect"}
         </button>
       </div>
     </div>
