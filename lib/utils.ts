@@ -25,6 +25,15 @@ export interface Matchup {
   };
 }
 
+export interface Team {
+  id: number;
+  entry: number;
+  name: string;
+  player_name: string;
+  value_with_bank: number;
+  total_transfers: number;
+}
+
 const TOP_TEAMS = [
   {
     id: 1,

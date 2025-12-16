@@ -5,6 +5,7 @@ import Navbar from "@/components/navbar";
 import Header from "./header";
 import { MATCHUPS } from "@/lib/utils";
 import Bet from "./bet";
+import Lineups from "./lineups";
 
 function MatchupPage() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ function MatchupPage() {
       <Navbar />
       <Header matchup={matchup} />
       <Bet matchup={matchup} />
+      <Lineups matchup={matchup} />
     </div>
   );
 }

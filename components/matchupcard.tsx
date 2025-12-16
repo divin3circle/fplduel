@@ -10,12 +10,12 @@ export function getTeamLogo(teamId: number, teamType: "home" | "away") {
   }
   return AWAY_TEAMS[teamId - 5 - 1];
 }
+export function formatValue(value: number): string {
+  const actualValue = value / 10;
+  return `£${actualValue.toFixed(2)}`;
+}
 
 function MatchupCard({ matchup }: { matchup: Matchup }) {
-  function formatValue(value: number): string {
-    const actualValue = value / 10;
-    return `£${actualValue.toFixed(2)}`;
-  }
   return (
     <div className="bg-background/10 rounded-2xl p-4 border border-foreground/20">
       <div className="flex items-center justify-between">
