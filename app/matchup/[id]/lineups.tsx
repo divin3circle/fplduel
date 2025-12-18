@@ -8,7 +8,7 @@ import {
   Team,
 } from "@/lib/utils";
 import Image from "next/image";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const PlayerView = ({
   player,
@@ -17,34 +17,14 @@ const PlayerView = ({
   player: Lineup;
   isSubstitute?: boolean;
 }) => {
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => {
-    setOpen(true);
-  };
+  const router = useRouter();
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleClick = () => {
+    router.push(`/player/${player.element}`);
   };
-
-  if (open) {
-    return (
-      <div
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-lg flex items-center justify-center"
-        onClick={handleClose}
-      >
-        <div className="bg-transparent p-2 md:p-4 rounded-3xl w-full md:max-w-2xl h-1/2 border border-white/10 border-dashed dark:border-foreground/10">
-          <div className="bg-background w-full h-full rounded-3xl ">
-            <p className="text-sm font-semibold font-sans text-center">
-              {player.element}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
   return (
     <div
-      onClick={handleOpen}
+      onClick={handleClick}
       className={`flex relative ${
         isSubstitute ? "flex-col" : "flex-row"
       } gap-1 items-center rounded-md bg-foreground/5 cursor-pointer hover:bg-foreground/10 transition-all duration-200 hover:scale-95 backdrop-blur-2xl border border-foreground/20 dark:border-foreground/10`}
@@ -54,7 +34,7 @@ const PlayerView = ({
         alt="Player"
         width={100}
         height={100}
-        className={`object-cover rounded-t-md ${
+        className={`w-10 h-10 object-cover rounded-t-md ${
           isSubstitute
             ? "rotate-0 w-auto h-auto"
             : "rotate-270 md:w-12 md:h-12 "
@@ -123,13 +103,35 @@ const PitchView = () => {
           </div>
         </div>
       </div>
-      <Image
-        src="/pitch2.png"
-        alt="Pitch"
-        width={1000}
-        height={1000}
-        className="w-full h-full object-cover rounded-md block md:hidden"
-      />
+      <div className="relative w-full h-full md:hidden">
+        <Image
+          src="/pitch2.png"
+          alt="Pitch"
+          width={1000}
+          height={1000}
+          className="w-full h-full object-cover rounded-md"
+        />
+        <div className="absolute inset-0 flex items-center justify-between rotate-270">
+          <div className="flex flex-col justify-center items-center h-full">
+            <PlayerView player={formation.goalkeeper} />
+          </div>
+          <div className="flex flex-col justify-between items-center h-[55%]">
+            {formation.defenders.map((defender) => (
+              <PlayerView key={defender.element} player={defender} />
+            ))}
+          </div>
+          <div className="flex flex-col justify-between items-center h-[55%]">
+            {formation.midfielders.map((midfielder) => (
+              <PlayerView key={midfielder.element} player={midfielder} />
+            ))}
+          </div>
+          <div className="flex flex-col justify-between items-center h-[55%]">
+            {formation.forwards.map((forward) => (
+              <PlayerView key={forward.element} player={forward} />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
