@@ -1,17 +1,100 @@
 import { formatValue, getTeamLogo } from "@/components/matchupcard";
-import { Matchup, Team } from "@/lib/utils";
+import {
+  getFormation,
+  Lineup,
+  Matchup,
+  SAMPLE_LINEUP,
+  Team,
+} from "@/lib/utils";
 import Image from "next/image";
 
-const PitchView = () => {
+const PlayerView = ({
+  player,
+  isSubstitute,
+}: {
+  player: Lineup;
+  isSubstitute?: boolean;
+}) => {
   return (
-    <div className="w-full h-[600px] md:h-full bg-foreground/5 rounded-2xl p-4">
+    <div
+      className={`flex relative ${
+        isSubstitute ? "flex-col" : "flex-row"
+      } gap-1 items-center rounded-md bg-foreground/5 cursor-pointer hover:bg-foreground/10 transition-all duration-200 hover:scale-95 backdrop-blur-2xl border border-foreground/20 dark:border-foreground/10`}
+    >
       <Image
-        src="/pitch.png"
-        alt="Pitch"
-        width={1000}
-        height={1000}
-        className="w-full h-full object-cover rounded-md hidden md:block"
+        src="/sample.webp"
+        alt="Player"
+        width={100}
+        height={100}
+        className={`object-cover rounded-t-md ${
+          isSubstitute
+            ? "rotate-0 w-auto h-auto"
+            : "rotate-270 md:w-12 md:h-12 "
+        }`}
       />
+      {player.is_captain && (
+        <div className="absolute right-1/2 top-0 bg-black rounded-full w-4 h-4 rotate-270">
+          <p className="text-xs font-semibold font-sans text-center ">C</p>
+        </div>
+      )}
+      <div
+        className={`flex ${
+          isSubstitute ? "rotate-0 flex-row" : "rotate-270 flex-col"
+        } p-1`}
+      >
+        <p className="text-xs font-semibold font-sans text-center">
+          {player.position}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const SubstituteView = () => {
+  const formation = getFormation(SAMPLE_LINEUP);
+  return (
+    <div className="flex items-center justify-around gap-1">
+      {formation.substitutes.map((substitute) => (
+        <PlayerView key={substitute.element} player={substitute} isSubstitute />
+      ))}
+    </div>
+  );
+};
+
+const PitchView = () => {
+  const formation = getFormation(SAMPLE_LINEUP);
+
+  return (
+    <div className="w-full h-[600px] md:h-full bg-foreground/5 rounded-2xl">
+      <div className="relative w-full h-full hidden md:block">
+        <Image
+          src="/pitch.png"
+          alt="Pitch"
+          width={1000}
+          height={1000}
+          className="w-full h-full object-cover rounded-md"
+        />
+        <div className="absolute inset-0 flex items-center justify-around">
+          <div className="flex flex-col justify-center items-center h-full">
+            <PlayerView player={formation.goalkeeper} />
+          </div>
+          <div className="flex flex-col justify-between items-center h-[75%]">
+            {formation.defenders.map((defender) => (
+              <PlayerView key={defender.element} player={defender} />
+            ))}
+          </div>
+          <div className="flex flex-col justify-between items-center h-3/4">
+            {formation.midfielders.map((midfielder) => (
+              <PlayerView key={midfielder.element} player={midfielder} />
+            ))}
+          </div>
+          <div className="flex flex-col justify-between items-center h-3/4">
+            {formation.forwards.map((forward) => (
+              <PlayerView key={forward.element} player={forward} />
+            ))}
+          </div>
+        </div>
+      </div>
       <Image
         src="/pitch2.png"
         alt="Pitch"
@@ -52,6 +135,8 @@ const TeamView = ({
       </div>
       <div className="mt-2 md:h-[90%]">
         <PitchView />
+        <p className="text-sm font-semibold font-sans mt-4 mb-1">Substitutes</p>
+        <SubstituteView />
       </div>
     </div>
   );
@@ -59,7 +144,7 @@ const TeamView = ({
 
 function Lineups({ matchup }: { matchup: Matchup }) {
   return (
-    <div className="w-full bg-foreground/5 rounded-2xl mt-4 md:h-[500px] flex items-center justify-between flex-col md:flex-row">
+    <div className="w-full bg-foreground/5 rounded-2xl mt-4 flex items-center justify-between flex-col md:flex-row">
       <TeamView team={matchup.home} teamType="home" />
       <TeamView team={matchup.away} teamType="away" />
     </div>

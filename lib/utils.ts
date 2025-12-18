@@ -25,6 +25,15 @@ export interface Matchup {
   };
 }
 
+export interface Lineup {
+  element: number;
+  position: number;
+  multiplier: number;
+  is_captain: boolean;
+  is_vice_captain: boolean;
+  element_type: number;
+}
+
 export interface Team {
   id: number;
   entry: number;
@@ -144,3 +153,158 @@ export const MATCHUPS = [
     away: TOP_TEAMS[TOP_TEAMS.length - 5],
   },
 ];
+
+export const SAMPLE_LINEUP = [
+  {
+    element: 736,
+    position: 1,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 1,
+  },
+  {
+    element: 411,
+    position: 2,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 2,
+  },
+  {
+    element: 260,
+    position: 3,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 2,
+  },
+  {
+    element: 725,
+    position: 4,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 2,
+  },
+  {
+    element: 329,
+    position: 5,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: true,
+    element_type: 3,
+  },
+  {
+    element: 387,
+    position: 6,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 3,
+  },
+  {
+    element: 16,
+    position: 7,
+    multiplier: 2,
+    is_captain: true,
+    is_vice_captain: false,
+    element_type: 3,
+  },
+  {
+    element: 449,
+    position: 8,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 3,
+  },
+  {
+    element: 136,
+    position: 9,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 4,
+  },
+  {
+    element: 661,
+    position: 10,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 4,
+  },
+  {
+    element: 337,
+    position: 11,
+    multiplier: 1,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 4,
+  },
+  {
+    element: 32,
+    position: 12,
+    multiplier: 0,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 1,
+  },
+  {
+    element: 242,
+    position: 13,
+    multiplier: 0,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 3,
+  },
+  {
+    element: 257,
+    position: 14,
+    multiplier: 0,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 2,
+  },
+  {
+    element: 151,
+    position: 15,
+    multiplier: 0,
+    is_captain: false,
+    is_vice_captain: false,
+    element_type: 2,
+  },
+];
+
+export function getFormation(lineup: Lineup[]) {
+  enum Position {
+    GK = 1,
+    DEF = 2,
+    MID = 3,
+    FWD = 4,
+  }
+
+  // only the 1st 11 players
+  const players = lineup.slice(1, 11);
+  const defenders = [];
+  const midfielders = [];
+  const forwards = [];
+
+  for (const player of players) {
+    if (player.element_type === Position.DEF) {
+      defenders.push(player);
+    } else if (player.element_type === Position.MID) {
+      midfielders.push(player);
+    } else if (player.element_type === Position.FWD) {
+      forwards.push(player);
+    }
+  }
+  return {
+    defenders,
+    midfielders,
+    forwards,
+    goalkeeper: lineup[0],
+    substitutes: lineup.slice(11),
+  };
+}

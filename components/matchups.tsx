@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 function Matchups() {
   const pathname = usePathname();
   return (
-    <div className="mt-8 mb-4">
+    <div className="mt-8 mb-4 mx-2">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold font-sans">Matchups</h2>
         {!pathname.includes("matchup") && (
