@@ -4,8 +4,21 @@ import Image from "next/image";
 
 const PitchView = () => {
   return (
-    <div className="w-full h-full bg-foreground/5 rounded-2xl p-4">
-      <h1 className="text-sm font-semibold font-sans">Pitch View</h1>
+    <div className="w-full h-[600px] md:h-full bg-foreground/5 rounded-2xl p-4">
+      <Image
+        src="/pitch.png"
+        alt="Pitch"
+        width={1000}
+        height={1000}
+        className="w-full h-full object-cover rounded-md hidden md:block"
+      />
+      <Image
+        src="/pitch2.png"
+        alt="Pitch"
+        width={1000}
+        height={1000}
+        className="w-full h-full object-cover rounded-md block md:hidden"
+      />
     </div>
   );
 };
@@ -46,7 +59,7 @@ const TeamView = ({
 
 function Lineups({ matchup }: { matchup: Matchup }) {
   return (
-    <div className="w-full bg-foreground/5 rounded-2xl mt-4 h-[500px] flex items-center justify-between flex-col md:flex-row">
+    <div className="w-full bg-foreground/5 rounded-2xl mt-4 md:h-[500px] flex items-center justify-between flex-col md:flex-row">
       <TeamView team={matchup.home} teamType="home" />
       <TeamView team={matchup.away} teamType="away" />
     </div>
