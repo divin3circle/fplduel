@@ -1,3 +1,4 @@
+"use client";
 import { formatValue, getTeamLogo } from "@/components/matchupcard";
 import {
   getFormation,
@@ -7,6 +8,7 @@ import {
   Team,
 } from "@/lib/utils";
 import Image from "next/image";
+import { useState } from "react";
 
 const PlayerView = ({
   player,
@@ -15,8 +17,34 @@ const PlayerView = ({
   player: Lineup;
   isSubstitute?: boolean;
 }) => {
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  if (open) {
+    return (
+      <div
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-lg flex items-center justify-center"
+        onClick={handleClose}
+      >
+        <div className="bg-transparent p-2 md:p-4 rounded-3xl w-full md:max-w-2xl h-1/2 border border-white/10 border-dashed dark:border-foreground/10">
+          <div className="bg-background w-full h-full rounded-3xl ">
+            <p className="text-sm font-semibold font-sans text-center">
+              {player.element}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div
+      onClick={handleOpen}
       className={`flex relative ${
         isSubstitute ? "flex-col" : "flex-row"
       } gap-1 items-center rounded-md bg-foreground/5 cursor-pointer hover:bg-foreground/10 transition-all duration-200 hover:scale-95 backdrop-blur-2xl border border-foreground/20 dark:border-foreground/10`}
