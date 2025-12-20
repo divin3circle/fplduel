@@ -13,5 +13,6 @@ CREATE TABLE IF NOT EXISTS teams (
 -- +goose StatementEnd
 -- +goose Down
 
+-- +goose StatementBegin
 DROP TABLE IF EXISTS teams;
--- +goose Down
+-- +goose StatementEnd

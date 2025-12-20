@@ -9,5 +9,9 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 	r := chi.NewRouter()
 	r.Get("/health", app.HealthCheck)
 
+	// MATCHUP ROUTES
+	r.Get("/matchup/{id}", app.MatchupHandler.GetMatchupByID)
+	r.Get("/matchup", app.MatchupHandler.GetAllMatchups)
+
 	return r
 }

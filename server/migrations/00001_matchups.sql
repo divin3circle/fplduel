@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS matchups (
 -- +goose StatementEnd
 -- +goose Down
 
+-- +goose StatementBegin
 DROP TABLE IF EXISTS matchups;
--- +goose Down
-
+-- +goose StatementEnd
 

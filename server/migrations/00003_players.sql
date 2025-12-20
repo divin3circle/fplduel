@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS players (
     id INT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     web_name VARCHAR(255) NOT NULL,
-    team_id teams(id) NOT NULL,
+    team_id INT NOT NULL REFERENCES teams(id),
     team_code INT NOT NULL,
     in_dreamteam BOOLEAN DEFAULT FALSE,
     total_points INT DEFAULT 0,
@@ -49,5 +49,6 @@ CREATE TABLE IF NOT EXISTS players (
 -- +goose StatementEnd
 -- +goose Down
 
+-- +goose StatementBegin
 DROP TABLE IF EXISTS players;
--- +goose Down
+-- +goose StatementEnd

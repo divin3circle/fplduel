@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/divin3circle/fplduel/server/internal/api"
 	"github.com/divin3circle/fplduel/server/internal/stores"
-	`github.com/divin3circle/fplduel/server/migrations`
+	"github.com/divin3circle/fplduel/server/migrations"
 	hiero "github.com/hiero-ledger/hiero-sdk-go/v2/sdk"
 	"github.com/joho/godotenv"
 )
@@ -17,6 +18,7 @@ type Application struct {
 	Logger *log.Logger
 	DB     *sql.DB
 	Hiero  *hiero.Client
+	MatchupHandler *api.MatchupHandler
 }
 
 func loadEnvironmentVariables() {
@@ -70,13 +72,16 @@ func NewApplication() (*Application, error) {
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// STORES
+	matchupStore := stores.NewPostgresMatchupStore(db)
 
 	// HANDLERS
+	matchupHandler := api.NewMatchupHandler(logger, client, matchupStore)
 
 	return &Application{
 		Logger: logger,
 		DB:     db,
 		Hiero:  client,
+		MatchupHandler: matchupHandler,
 	}, nil
 }
 
