@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/divin3circle/fplduel/server/internal/stores"
+	`github.com/divin3circle/fplduel/server/migrations`
 	hiero "github.com/hiero-ledger/hiero-sdk-go/v2/sdk"
 	"github.com/joho/godotenv"
 )
@@ -25,7 +26,7 @@ func loadEnvironmentVariables() {
 		panic("Error loading .env file")
 	}
 
-	fmt.Println("Environment variables loaded from")
+	fmt.Println("Environment variables loaded successfully")
 }
 
 func createHieroClient() (*hiero.Client, error) {
@@ -60,6 +61,11 @@ func NewApplication() (*Application, error) {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 	log.Println("Connected to database")
+
+	err = stores.MigrateFS(db, migrations.FS, ".")
+	if err != nil {
+		panic(err)
+	}
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
