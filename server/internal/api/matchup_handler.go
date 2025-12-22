@@ -3,6 +3,7 @@ package api
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/divin3circle/fplduel/server/internal/stores"
 	"github.com/divin3circle/fplduel/server/internal/utils"
@@ -49,5 +50,30 @@ func (mh *MatchupHandler) GetAllMatchups(w http.ResponseWriter, r *http.Request)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.Envelope{"error": "failed to get all matchups"})
 		return
 	}
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"matchups": matchups})
+}
+
+func (mh *MatchupHandler) GetMatchupsByGameWeek(w http.ResponseWriter, r *http.Request) {
+	gameweekStr, err := utils.ReadIDParam(r, "gameweek")
+	if err != nil {
+		mh.Logger.Println("Error getting gameweek matchups", err)
+		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "gameweek is required for this resource"})
+		return
+	}
+
+	gameweek, err := strconv.Atoi(gameweekStr)
+	if err != nil {
+		mh.Logger.Println("Error converting gameweek to int", err)
+		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "invalid gameweek"})
+		return
+	}
+
+	matchups, err := mh.MatchupStore.GetGameweekMatchups(gameweek)
+	if err != nil {
+		mh.Logger.Println("Error getting matchups for gameweek", err)
+		utils.WriteJSON(w, http.StatusInternalServerError, utils.Envelope{"error": "failed to get matchups for gameweek"})
+		return
+	}
+
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"matchups": matchups})
 }
