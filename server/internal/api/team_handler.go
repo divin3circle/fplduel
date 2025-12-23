@@ -86,3 +86,11 @@ func (th *TeamHandler) HandleListTeams(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"teams": teams})
 }
+
+func (mh *TeamHandler) HandleCreateOrUpdateTeams(w http.ResponseWriter, r http.Request) {
+	
+}
+
+func getTeams() ([]*stores.Team, error){
+	return nil, nil
+}
