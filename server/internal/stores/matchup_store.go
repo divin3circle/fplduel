@@ -79,7 +79,7 @@ func (pm *PostgresMatchupStore) GetMatchupByID(id string) (*Matchup, error) {
 		&matchup.UpdatedAt,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, errors.New("matchup with id " + id + " not found")
+		return nil, nil
 	}
 	if err != nil {
 		return nil, err

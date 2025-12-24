@@ -10,12 +10,23 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 	r.Get("/health", app.HealthCheck)
 
 	// MATCHUP ROUTES
+	/* POST */
+	r.Post("/matchup", app.MatchupHandler.CreateMatchups)
+
+	/* PUT */
+	r.Put("/matchup/{id}/score", app.MatchupHandler.UpdateMatchupScores)
+
+	/* GET */
 	r.Get("/matchup/{id}", app.MatchupHandler.GetMatchupByID)
 	r.Get("/matchup", app.MatchupHandler.GetAllMatchups)
 	r.Get("/gameweek/{gameweek}", app.MatchupHandler.GetMatchupsByGameWeek)
+	r.Get("/gameweek", app.MatchupHandler.GetCurrentGameweek)
 
 	// TEAM ROUTES
+	/* POST */
 	r.Post("/update/teams", app.TeamHandler.HandleCreateOrUpdateTeams)
+
+	/* GET */
 	r.Get("/team/id/{id}", app.TeamHandler.HandleGetTeamByID)
 	r.Get("/team/code/{code}", app.TeamHandler.HandleGetTeamByCode)
 	r.Get("/team", app.TeamHandler.HandleListTeams)
