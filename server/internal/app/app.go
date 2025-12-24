@@ -15,10 +15,11 @@ import (
 )
 
 type Application struct {
-	Logger *log.Logger
-	DB     *sql.DB
-	Hiero  *hiero.Client
+	Logger         *log.Logger
+	DB             *sql.DB
+	Hiero          *hiero.Client
 	MatchupHandler *api.MatchupHandler
+	TeamHandler    *api.TeamHandler
 }
 
 func loadEnvironmentVariables() {
@@ -73,15 +74,18 @@ func NewApplication() (*Application, error) {
 
 	// STORES
 	matchupStore := stores.NewPostgresMatchupStore(db)
+	teamsStore := stores.NewPostgresTeamsStore(db)
 
 	// HANDLERS
 	matchupHandler := api.NewMatchupHandler(logger, client, matchupStore)
+	teamHandler := api.NewTeamHandler(logger, client, teamsStore)
 
 	return &Application{
-		Logger: logger,
-		DB:     db,
-		Hiero:  client,
+		Logger:         logger,
+		DB:             db,
+		Hiero:          client,
 		MatchupHandler: matchupHandler,
+		TeamHandler:    teamHandler,
 	}, nil
 }
 

@@ -2,15 +2,16 @@ package stores
 
 import (
 	"database/sql"
+	`errors`
 	"time"
 )
 
 type Team struct {
-	ID		int    `json:"id"`
-	Code   int    `json:"code"`
-	Name   string `json:"name"`
-	ShortName string `json:"short_name"`
-	Strength int    `json:"strength"`
+	ID        int       `json:"id"`
+	Code      int       `json:"code"`
+	Name      string    `json:"name"`
+	ShortName string    `json:"short_name"`
+	Strength  int       `json:"strength"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
@@ -18,7 +19,7 @@ type PostgresTeamsStore struct {
 	db *sql.DB
 }
 
-func NewPostgresTeamsStore(db *sql.DB) * PostgresTeamsStore {
+func NewPostgresTeamsStore(db *sql.DB) *PostgresTeamsStore {
 	return &PostgresTeamsStore{
 		db: db,
 	}
@@ -47,6 +48,9 @@ func (pts *PostgresTeamsStore) GetTeamByID(id int) (*Team, error) {
 		&team.Strength,
 		&team.UpdatedAt,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +103,7 @@ func (pts *PostgresTeamsStore) GetTeamByCode(code int) (*Team, error) {
 	FROM teams
 	WHERE code = $1
 	`
-	
+
 	err := pts.db.QueryRow(query, code).Scan(
 		&team.ID,
 		&team.Code,
@@ -108,6 +112,9 @@ func (pts *PostgresTeamsStore) GetTeamByCode(code int) (*Team, error) {
 		&team.Strength,
 		&team.UpdatedAt,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}

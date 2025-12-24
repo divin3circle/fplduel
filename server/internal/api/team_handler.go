@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	`time`
 
 	"github.com/divin3circle/fplduel/server/internal/stores"
 	"github.com/divin3circle/fplduel/server/internal/utils"
@@ -11,15 +12,15 @@ import (
 )
 
 type TeamHandler struct {
-	Logger *log.Logger
-	Client hiero.Client
+	Logger    *log.Logger
+	Client    *hiero.Client
 	TeamStore stores.TeamStore
 }
 
-func NewTeamHandler(logger *log.Logger, client hiero.Client, teamStore stores.TeamStore) *TeamHandler {
+func NewTeamHandler(logger *log.Logger, client *hiero.Client, teamStore stores.TeamStore) *TeamHandler {
 	return &TeamHandler{
-		Logger: logger,
-		Client: client,
+		Logger:    logger,
+		Client:    client,
 		TeamStore: teamStore,
 	}
 }
@@ -40,6 +41,11 @@ func (th *TeamHandler) HandleGetTeamByID(w http.ResponseWriter, r *http.Request)
 	}
 
 	team, err := th.TeamStore.GetTeamByID(teamId)
+	if err == nil && team == nil {
+		th.Logger.Printf("Team %v does not exist", teamId)
+		utils.WriteJSON(w, http.StatusNotFound, utils.Envelope{"message": "Team not found"})
+		return
+	}
 	if err != nil {
 		th.Logger.Printf("Error fetching team by ID: %v", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.Envelope{"error": "Could not fetch team"})
@@ -66,6 +72,11 @@ func (th *TeamHandler) HandleGetTeamByCode(w http.ResponseWriter, r *http.Reques
 	}
 
 	team, err := th.TeamStore.GetTeamByCode(teamCode)
+	if err == nil && team == nil {
+		th.Logger.Printf("Team %v does not exist", teamCode)
+		utils.WriteJSON(w, http.StatusNotFound, utils.Envelope{"message": "Team not found"})
+		return
+	}
 	if err != nil {
 		th.Logger.Printf("Error fetching team by code: %v", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.Envelope{"error": "Could not fetch team"})
@@ -87,10 +98,45 @@ func (th *TeamHandler) HandleListTeams(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"teams": teams})
 }
 
-func (mh *TeamHandler) HandleCreateOrUpdateTeams(w http.ResponseWriter, r http.Request) {
-	
+func (th *TeamHandler) HandleCreateOrUpdateTeams(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		utils.WriteJSON(w, http.StatusMethodNotAllowed, utils.Envelope{"error": "method not allowed"})
+		return
+	}
+
+	data, err := utils.GetBootstrapData(http.DefaultClient)
+	if err != nil {
+		th.Logger.Printf("Error reading bootstrap data: %v", err)
+		utils.WriteJSON(w, http.StatusInternalServerError, utils.Envelope{"error": "Could not read bootstrap data"})
+		return
+	}
+	if data == nil || data.Teams == nil {
+		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "no teams in bootstrap data"})
+		return
+	}
+
+	var teams []*stores.Team
+	now := time.Now().UTC()
+	for _, t := range *data.Teams {
+		teams = append(teams, &stores.Team{
+			ID:        t.ID,
+			Code:      t.Code,
+			Name:      t.Name,
+			ShortName: t.ShortName,
+			Strength:  t.Strength,
+			UpdatedAt: now,
+		})
+	}
+
+	if err := th.TeamStore.UpdateTeams(teams); err != nil {
+		th.Logger.Printf("Error updating teams: %v", err)
+		utils.WriteJSON(w, http.StatusInternalServerError, utils.Envelope{"error": "Could not update teams"})
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"message": "Teams created or updated successfully"})
 }
 
-func getTeams() ([]*stores.Team, error){
+func getTeams() ([]*stores.Team, error) {
 	return nil, nil
 }
