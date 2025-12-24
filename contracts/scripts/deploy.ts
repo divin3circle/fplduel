@@ -19,17 +19,25 @@ async function main() {
 
   // Default parameters (can be overridden by .env)
   // 100 HBAR default virtual pool for Team A/B, 50 for Draw
-  const virtualPoolA = process.env.VIRTUAL_POOL_A ? BigInt(process.env.VIRTUAL_POOL_A) : ethers.parseEther("100");
-  const virtualPoolDraw = process.env.VIRTUAL_POOL_DRAW ? BigInt(process.env.VIRTUAL_POOL_DRAW) : ethers.parseEther("50");
-  const virtualPoolB = process.env.VIRTUAL_POOL_B ? BigInt(process.env.VIRTUAL_POOL_B) : ethers.parseEther("100");
+  const virtualPoolA = process.env.VIRTUAL_POOL_A
+    ? BigInt(process.env.VIRTUAL_POOL_A)
+    : ethers.parseEther("100");
+  const virtualPoolDraw = process.env.VIRTUAL_POOL_DRAW
+    ? BigInt(process.env.VIRTUAL_POOL_DRAW)
+    : ethers.parseEther("50");
+  const virtualPoolB = process.env.VIRTUAL_POOL_B
+    ? BigInt(process.env.VIRTUAL_POOL_B)
+    : ethers.parseEther("100");
 
   const bettingEnd = process.env.BETTING_END_TIMESTAMP
     ? parseInt(process.env.BETTING_END_TIMESTAMP)
-    : Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60); // Default 7 days
+    : Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60; // Default 7 days
 
   console.log("📋 Deployment Parameters:");
   console.log(`   Virtual Pool A: ${ethers.formatEther(virtualPoolA)} HBAR`);
-  console.log(`   Virtual Pool Draw: ${ethers.formatEther(virtualPoolDraw)} HBAR`);
+  console.log(
+    `   Virtual Pool Draw: ${ethers.formatEther(virtualPoolDraw)} HBAR`
+  );
   console.log(`   Virtual Pool B: ${ethers.formatEther(virtualPoolB)} HBAR`);
   console.log(`   Betting End: ${new Date(bettingEnd * 1000).toISOString()}`);
   console.log(`   Betting End Timestamp: ${bettingEnd}\n`);
@@ -49,9 +57,12 @@ async function main() {
   console.log(`✅ Contract deployed successfully!\n`);
 
   // Log Contract Info
-  const explorerBase = networkName === "hederaMainnet" ? "https://hashscan.io/mainnet" : "https://hashscan.io/testnet";
+  const explorerBase =
+    networkName === "hederaMainnet"
+      ? "https://hashscan.io/mainnet"
+      : "https://hashscan.io/testnet";
   const explorerLink = `${explorerBase}/contract/${contractAddress}`;
-  
+
   console.log("📄 Contract Information:");
   console.log(`   Address: ${contractAddress}`);
   console.log(`   Network: ${network.name}`);
@@ -69,7 +80,7 @@ async function main() {
     console.log(`   Draw: ${(Number(oddsDraw) / 1e18).toFixed(2)}`);
     console.log(`   Team B: ${(Number(oddsB) / 1e18).toFixed(2)}\n`);
   } catch (error) {
-    console.log("   ⚠️  Could not fetch initial odds\n");
+    console.log("   ⚠️  Could not fetch initial odds\n", error);
   }
 
   // Save Deployment Info locally
@@ -86,14 +97,20 @@ async function main() {
 
   if (networkName.includes("hedera")) {
     console.log("\n📝 To verify on Hashscan:");
-    console.log(`   npx hardhat verify --network ${networkName} ${contractAddress} ${bettingEnd} ${virtualPoolA} ${virtualPoolDraw} ${virtualPoolB}`);
+    console.log(
+      `   npx hardhat verify --network ${networkName} ${contractAddress} ${bettingEnd} ${virtualPoolA} ${virtualPoolDraw} ${virtualPoolB}`
+    );
   }
 
   console.log("\n✨ Deployment complete!\n");
 }
 
 // Helper: Save deployment info to file
-async function saveDeploymentInfo(contractAddress: string, network: string, deploymentData: Record<string, any>) {
+async function saveDeploymentInfo(
+  contractAddress: string,
+  network: string,
+  deploymentData: Record<string, any>
+) {
   const fs = await import("fs");
   const path = await import("path");
 

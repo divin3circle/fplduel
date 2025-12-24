@@ -1,8 +1,8 @@
 package api
 
 import (
-	`encoding/json`
-	`fmt`
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -104,8 +104,8 @@ func (mh *MatchupHandler) CreateMatchups(w http.ResponseWriter, r *http.Request)
 		err := mh.MatchupStore.CreateMatchup(matchup)
 		if err != nil {
 			mh.Logger.Printf("Error creating matchup at index: %d, %v, %v", idx, matchup, err)
-			continue
 			failedToCreate++
+			continue
 		}
 		createdMatchups = append(createdMatchups, matchups[idx])
 	}
