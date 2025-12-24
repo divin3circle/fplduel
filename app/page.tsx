@@ -8,7 +8,7 @@ import Link from "next/link";
 import Matchups from "@/components/matchups";
 
 export default function Home() {
-  const [tab, setTab] = useState<"highlights" | "upcoming" | "live">(
+  const [tab, setTab] = useState<"highlights" | "history" | "live">(
     "highlights"
   );
   return (
@@ -28,13 +28,13 @@ export default function Home() {
           </div>
           <div
             className={`${
-              tab === "upcoming"
+              tab === "history"
                 ? "text-primary font-semibold border-b-2 border-primary"
                 : "text-foreground/70"
             } cursor-pointer`}
-            onClick={() => setTab("upcoming")}
+            onClick={() => setTab("history")}
           >
-            <p className="font-sans text-lg">Upcoming</p>
+            <p className="font-sans text-lg">History</p>
           </div>
           <div
             className={`${
@@ -49,7 +49,7 @@ export default function Home() {
         </div>
       </div>
       <div
-        className="w-full relative h-[400px] rounded-2xl bg-background/10 mt-4"
+        className="w-full relative h-100 rounded-2xl bg-background/10 mt-4"
         style={{
           backgroundImage: `url(${fplBg.src})`,
           backgroundSize: "cover",
@@ -76,7 +76,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center gap-2 p-4 w-full md:w-1/2">
             <Button
               variant="default"
-              className="rounded-2xl font-sans font-semibold text-sm shadow-none w-full md:w-auto min-w-[150px]"
+              className="rounded-2xl font-sans font-semibold text-sm shadow-none w-full md:w-auto min-w-37.5"
             >
               <p>Get Started</p>
             </Button>
