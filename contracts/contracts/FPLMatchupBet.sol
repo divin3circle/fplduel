@@ -134,6 +134,22 @@ contract FPLMatchupBet {
     }
 
     /**
+     * @dev Check how much an address can claim (in wei-scale).
+     * Returns 0 if not settled, no stake, or not a winner.
+     */
+    function getClaimableAmount(address user) external view returns (uint256) {
+        if (!settled) return 0;
+        if (userAmount[user] == 0) return 0;
+        if (userOutcome[user] == 0) return 0; // No bet placed
+        if (userOutcome[user] - 1 != winner) return 0; // Not winner
+
+        uint256 winningPool = winner == 0 ? poolA : winner == 1 ? poolDraw : poolB;
+        if (winningPool == 0) return 0;
+
+        return (userAmount[user] * netPool) / winningPool;
+    }
+
+    /**
      * @dev Users claim proportional share from real net pool using safe .call.
      * 
      * HEDERA NOTE: Scales payout back to tinybars before transfer.
