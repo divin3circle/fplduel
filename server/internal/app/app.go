@@ -20,6 +20,7 @@ type Application struct {
 	Hiero          *hiero.Client
 	MatchupHandler *api.MatchupHandler
 	TeamHandler    *api.TeamHandler
+	PlayerHandler  *api.PlayerHandler
 }
 
 func loadEnvironmentVariables() {
@@ -75,10 +76,12 @@ func NewApplication() (*Application, error) {
 	// STORES
 	matchupStore := stores.NewPostgresMatchupStore(db)
 	teamsStore := stores.NewPostgresTeamsStore(db)
+	playersStore := stores.NewPostgresPlayersStore(db)
 
 	// HANDLERS
 	matchupHandler := api.NewMatchupHandler(logger, client, matchupStore)
 	teamHandler := api.NewTeamHandler(logger, client, teamsStore)
+	playerHandler := api.NewPlayerHandler(logger, client, playersStore)
 
 	return &Application{
 		Logger:         logger,
@@ -86,6 +89,7 @@ func NewApplication() (*Application, error) {
 		Hiero:          client,
 		MatchupHandler: matchupHandler,
 		TeamHandler:    teamHandler,
+		PlayerHandler:  playerHandler,
 	}, nil
 }
 

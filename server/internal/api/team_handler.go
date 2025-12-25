@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	`time`
+	"time"
 
 	"github.com/divin3circle/fplduel/server/internal/stores"
 	"github.com/divin3circle/fplduel/server/internal/utils"
@@ -137,6 +137,21 @@ func (th *TeamHandler) HandleCreateOrUpdateTeams(w http.ResponseWriter, r *http.
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"message": "Teams created or updated successfully"})
 }
 
-func getTeams() ([]*stores.Team, error) {
-	return nil, nil
+func (th *TeamHandler) HandleGetTeamJerseyURL(w http.ResponseWriter, r *http.Request) {
+	teamCodeStr, err := utils.ReadIDParam(r, "code")
+	if err != nil {
+		th.Logger.Printf("Error reading team code param: %v", err)
+		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "Team code is required"})
+		return
+	}
+
+	teamCode, err := strconv.Atoi(teamCodeStr)
+	if err != nil {
+		th.Logger.Printf("Error converting team code to int: %v", err)
+		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "Invalid team code"})
+		return
+	}
+
+	jerseyURL := th.TeamStore.GetTeamJerseyURL(teamCode)
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"jersey_url": jerseyURL})
 }

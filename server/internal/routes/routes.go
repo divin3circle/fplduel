@@ -30,6 +30,16 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 	r.Get("/team/id/{id}", app.TeamHandler.HandleGetTeamByID)
 	r.Get("/team/code/{code}", app.TeamHandler.HandleGetTeamByCode)
 	r.Get("/team", app.TeamHandler.HandleListTeams)
+	r.Get("/team/jersey/{code}", app.TeamHandler.HandleGetTeamJerseyURL)
+
+	// PLAYER ROUTES
+	/* POST */
+	r.Post("/update/players",  app.PlayerHandler.HandleUpdatePlayers)
+
+	/* GET */
+	r.Get("/player/id/{id}", app.PlayerHandler.HandleGetPlayerByID)
+	r.Get("/player/code/{code}", app.PlayerHandler.HandleGetPlayerByCode)
+	r.Get("/player/jersey/{code}", app.PlayerHandler.HandleGetPlayerImageURL)
 
 	return r
 }

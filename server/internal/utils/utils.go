@@ -3,14 +3,14 @@ package utils
 import (
 	"encoding/json"
 	"errors"
-	`fmt`
-	`math/rand`
+	"fmt"
+	"math/rand"
 	"net/http"
-	`time`
+	"time"
 
-	`github.com/divin3circle/fplduel/server/internal/stores`
-	`github.com/go-chi/chi/v5`
-	`github.com/google/uuid`
+	"github.com/divin3circle/fplduel/server/internal/stores"
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type Envelope map[string]any
@@ -124,7 +124,7 @@ type ValuableTeam struct {
 type Status struct {
 	BonusAdded bool   `json:"bonus_added"`
 	Date       string `json:"date"`
-	Event      int    `:"event"`
+	Event      int    `json:"event"`
 	Points     string `json:"points"`
 }
 type GameweekStatus struct {
@@ -178,7 +178,7 @@ func GetMatchups(client *http.Client) ([]*stores.Matchup, error) {
 	// get the 10 valuable teams
 	top10, err := getValuableTeams(client)
 	if len(top10) != 10 {
-		return nil, errors.New(fmt.Sprintf("invalid top10, hash length: %v.", top10))
+		return nil, fmt.Errorf("invalid top10, hash length: %v.", top10)
 	}
 	if err != nil {
 		return nil, err
@@ -190,6 +190,36 @@ func GetMatchups(client *http.Client) ([]*stores.Matchup, error) {
 	matchups, err := transformPairs(pairedTeams)
 	// return
 	return matchups, err
+}
+
+func GetAllPlayers(client *http.Client) ([]*stores.Player, error){
+	bootstrapData, err := GetBootstrapData(client)
+	if err != nil {
+		return nil, err
+	}
+
+	elements := bootstrapData.Elements
+
+	// transform all elements to players
+	players := transformElementsToPlayers(*elements)
+	return players, nil
+}
+
+func GetCurrentGameweek() (int, error) {
+	url := "https://fantasy.premierleague.com/api/event-status/"
+	client := http.DefaultClient
+
+	resp, err := client.Get(url)
+	if err != nil {
+		return -1, err
+	}
+	defer resp.Body.Close()
+
+	var data GameweekStatus
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return -1, err
+	}
+	return data.Status[0].Event + 1, nil
 }
 
 func getValuableTeams(client *http.Client) ([]*ValuableTeam, error) {
@@ -236,7 +266,7 @@ func generateRandomID() string {
 func transformPairs(pairs [][2]*ValuableTeam) ([]*stores.Matchup, error) {
 	currentGameWeek, err := GetCurrentGameweek()
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to get current gameweek: %v", err))
+		return nil, fmt.Errorf("failed to get current gameweek: %v", err)
 	}
 	var matchups []*stores.Matchup
 	now := time.Now().UTC()
@@ -266,19 +296,67 @@ func transformPairs(pairs [][2]*ValuableTeam) ([]*stores.Matchup, error) {
 	return matchups, nil
 }
 
-func GetCurrentGameweek() (int, error) {
-	url := "https://fantasy.premierleague.com/api/event-status/"
-	client := http.DefaultClient
+func transformElementsToPlayers(elements []*Element) []*stores.Player {
+	var players []*stores.Player
+	now := time.Now().UTC()
 
-	resp, err := client.Get(url)
-	if err != nil {
-		return -1, err
+	for _, e := range elements {
+		player := &stores.Player{
+			ID:                e.ID,
+			Code:              e.Code,
+			Name:              e.Name,
+			WebName:           e.WebName,
+			TeamID:            e.TeamID,
+			TeamCode:          e.TeamCode,
+			InDreamteam:       e.InDreamteam,
+			TotalPoints:       e.TotalPoints,
+			MinutesPlayed:     e.MinutesPlayed,
+			FormRank:          e.FormRank,
+			Form:              e.Form,
+			PointsPerGame:     e.PointsPerGame,
+			Influence:         e.Influence,
+			Creativity:        e.Creativity,
+			Threat:            e.Threat,
+			IctIndex:          e.IctIndex,
+			ElementType:       e.ElementType,
+			TransfersIn:       e.TransfersIn,
+			TransfersOut:      e.TransfersOut,
+			SelectedByPercent: e.SelectedByPercent,
+			SelectedRank:      e.SelectedRank,
+			PointsPerGameRank: e.PointsPerGameRank,
+			IctIndexRank:      e.IctIndexRank,
+			News:              e.News,
+			NewsAdded:         e.NewsAdded,
+			GoalsScored:	   e.GoalsScored,
+			Assists:		   e.Assists,
+			CleanSheets:	   e.CleanSheets,
+			GoalsConceded:	   e.GoalsConceded,
+			ExpectedGoals:	   e.ExpectedGoals,
+			ExpectedAssists:   e.ExpectedAssists,
+			ExpectedGoalInvolvements: e.ExpectedGoalInvolvements,
+			ExpectedGoalsConceded:   e.ExpectedGoalsConceded,
+			YellowCards:       e.YellowCards,
+			RedCards:          e.RedCards,
+			DefensiveContributionPer90: convertFloatToString(e.DefensiveContributionPer90),
+			StartsPer90:       convertFloatToString(e.StartsPer90),
+			Minutes:           convertIntToString(e.Minutes),
+			Photo:             e.Photo,
+			BirthDate:         e.BirthDate,
+			TeamJoinedDate:    e.TeamJoinedDate,
+			UpdatedAt:         now,
+		}
+		players = append(players, player)
 	}
-	defer resp.Body.Close()
-
-	var data GameweekStatus
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return -1, err
-	}
-	return data.Status[0].Event + 1, nil
+	return players
 }
+
+func convertIntToString(value int) string {
+	strValue := fmt.Sprintf("%d", value)
+	return strValue
+}
+
+func convertFloatToString(value float64) string {
+	strValue := fmt.Sprintf("%.2f", value)
+	return strValue
+}
+

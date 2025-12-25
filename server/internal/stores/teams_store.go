@@ -2,9 +2,13 @@ package stores
 
 import (
 	"database/sql"
-	`errors`
+	"errors"
+	"fmt"
 	"time"
 )
+
+// https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_7-66.webp
+const TeamJerseyBaseURL = "https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_"
 
 type Team struct {
 	ID        int       `json:"id"`
@@ -30,6 +34,7 @@ type TeamStore interface {
 	ListTeams() ([]*Team, error)
 	GetTeamByCode(code int) (*Team, error)
 	UpdateTeams(teams []*Team) error
+	GetTeamJerseyURL(code int) string
 }
 
 func (pts *PostgresTeamsStore) GetTeamByID(id int) (*Team, error) {
@@ -154,4 +159,9 @@ func (pts *PostgresTeamsStore) UpdateTeams(teams []*Team) error {
 	}
 
 	return tx.Commit()
+}
+
+func (pts *PostgresTeamsStore) GetTeamJerseyURL(code int) string {
+	formattedCode := fmt.Sprintf("%d-66.webp", code)
+	return TeamJerseyBaseURL + formattedCode
 }
