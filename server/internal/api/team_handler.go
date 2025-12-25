@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,6 +16,10 @@ type TeamHandler struct {
 	Logger    *log.Logger
 	Client    *hiero.Client
 	TeamStore stores.TeamStore
+}
+
+type TeamJerseyRequest struct {
+	Position int `json:"position"`
 }
 
 func NewTeamHandler(logger *log.Logger, client *hiero.Client, teamStore stores.TeamStore) *TeamHandler {
@@ -138,6 +143,7 @@ func (th *TeamHandler) HandleCreateOrUpdateTeams(w http.ResponseWriter, r *http.
 }
 
 func (th *TeamHandler) HandleGetTeamJerseyURL(w http.ResponseWriter, r *http.Request) {
+	teamJerseyRequest := &TeamJerseyRequest{}
 	teamCodeStr, err := utils.ReadIDParam(r, "code")
 	if err != nil {
 		th.Logger.Printf("Error reading team code param: %v", err)
@@ -152,6 +158,13 @@ func (th *TeamHandler) HandleGetTeamJerseyURL(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	jerseyURL := th.TeamStore.GetTeamJerseyURL(teamCode)
+	err = json.NewDecoder(r.Body).Decode(teamJerseyRequest)
+	if err != nil {
+		th.Logger.Printf("Error decoding team jersey request: %v", err)
+		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "Invalid request payload"})
+		return
+	}
+
+	jerseyURL := th.TeamStore.GetTeamJerseyURL(teamCode, teamJerseyRequest.Position)
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"jersey_url": jerseyURL})
 }

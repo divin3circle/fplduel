@@ -34,7 +34,7 @@ type TeamStore interface {
 	ListTeams() ([]*Team, error)
 	GetTeamByCode(code int) (*Team, error)
 	UpdateTeams(teams []*Team) error
-	GetTeamJerseyURL(code int) string
+	GetTeamJerseyURL(code int, position int) string
 }
 
 func (pts *PostgresTeamsStore) GetTeamByID(id int) (*Team, error) {
@@ -161,7 +161,12 @@ func (pts *PostgresTeamsStore) UpdateTeams(teams []*Team) error {
 	return tx.Commit()
 }
 
-func (pts *PostgresTeamsStore) GetTeamJerseyURL(code int) string {
-	formattedCode := fmt.Sprintf("%d-66.webp", code)
+func (pts *PostgresTeamsStore) GetTeamJerseyURL(code int, position int) string {
+	var formattedCode string
+	if position == 1 {
+		formattedCode = fmt.Sprintf("%d_%d-66.webp", code, position)
+	} else {
+		formattedCode = fmt.Sprintf("%d-66.webp", code)
+	}
 	return TeamJerseyBaseURL + formattedCode
 }
