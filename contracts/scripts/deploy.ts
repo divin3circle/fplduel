@@ -5,7 +5,7 @@ import { ethers } from "hardhat";
  * Deploys FPLMatchupBet to Hedera Testnet/Mainnet or Local Hardhat
  */
 
-async function main() {
+async function deployContract(): Promise<string> {
   console.log("\n🚀 Deploying FPLMatchupBet Contract...\n");
 
   const network = await ethers.provider.getNetwork();
@@ -31,7 +31,7 @@ async function main() {
 
   const bettingEnd = process.env.BETTING_END_TIMESTAMP
     ? parseInt(process.env.BETTING_END_TIMESTAMP)
-    : Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60; // Default 7 days
+    : Math.floor(Date.now() / 1000) + 5 * 24 * 60 * 60; // Default 5 days
 
   console.log("📋 Deployment Parameters:");
   console.log(`   Virtual Pool A: ${ethers.formatEther(virtualPoolA)} HBAR`);
@@ -103,6 +103,7 @@ async function main() {
   }
 
   console.log("\n✨ Deployment complete!\n");
+  return contractAddress;
 }
 
 // Helper: Save deployment info to file
@@ -133,7 +134,7 @@ async function saveDeploymentInfo(
   console.log(`✅ Deployment info saved to: ${filePath}`);
 }
 
-main()
+deployContract()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error("\n❌ Deployment failed:");
