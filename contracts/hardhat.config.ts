@@ -20,12 +20,12 @@ const config: HardhatUserConfig = {
   networks: {
     hederaTestnet: {
       url: process.env.HEDERA_TESTNET_URL || "https://testnet.hashio.io/api",
-      accounts: process.env.HEDERA_TESTNET_PRIVATE_KEY 
+      accounts: process.env.HEDERA_TESTNET_PRIVATE_KEY
         ? [process.env.HEDERA_TESTNET_PRIVATE_KEY]
         : [],
       chainId: 296,
       gas: 3000000,
-      gasPrice: 750000000000, // ~750 gwei - Hedera minimum
+      gasPrice: 800000000000, // Hedera testnet current minimum
     },
     hederaMainnet: {
       url: process.env.HEDERA_MAINNET_URL || "https://mainnet.hashio.io/api",

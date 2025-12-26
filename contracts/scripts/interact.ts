@@ -1,13 +1,7 @@
 import { ethers } from "hardhat";
 
-/**
- * INTERACTIVE TEST SCRIPT
- * Tests getOdds() and bet() functions on the deployed contract
- */
-
-// ⚠️ UPDATE THIS WITH YOUR CONTRACT ADDRESS
 const CONTRACT_ADDRESS =
-  process.env.CONTRACT_ADDRESS || "0x8ed868ac2d4FD5b1CEAbcB4617F81d93EeECa6cE";
+  process.env.CONTRACT_ADDRESS || "0x0eFad73F6DE2f6d175104F66eFe8195F3bF4c0d4";
 
 async function main() {
   console.log("\n🧪 Testing FPL Matchup Contract\n");
@@ -23,7 +17,8 @@ async function main() {
   console.log(`🔗 Connecting to contract: ${CONTRACT_ADDRESS}\n`);
   const contract = await ethers.getContractAt(
     "FPLMatchupBet",
-    CONTRACT_ADDRESS
+    CONTRACT_ADDRESS,
+    deployer
   );
 
   // 1. Check Contract State
