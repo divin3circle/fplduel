@@ -1,17 +1,133 @@
+import dotenv from "dotenv";
 import express, { Application, Request, Response } from "express";
 import { ethers } from "ethers";
 import contractABI from "../../artifacts/contracts/FPLMatchupBet.sol/FPLMatchupBet.json";
 
+dotenv.config();
+
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
-// Configure provider - replace with your Hedera testnet RPC URL
+app.use(express.json());
+
 const provider = new ethers.JsonRpcProvider(
   process.env.RPC_URL || "https://testnet.hashio.io/api"
 );
 
+const wallet = new ethers.Wallet(getPrivateKey(), provider);
+
+async function deployContract(
+  bettingEnd: number,
+  virtualPoolA: bigint,
+  virtualPoolDraw: bigint,
+  virtualPoolB: bigint
+): Promise<{ contractAddress: string; transactionHash: string }> {
+  console.log("\n🚀 Deploying FPLMatchupBet Contract...\n");
+
+  const network = await provider.getNetwork();
+  const networkName = network.name === "unknown" ? "hardhat" : network.name;
+  console.log(`📡 Network: ${networkName} (Chain ID: ${network.chainId})`);
+
+  const deployer = wallet;
+  const balance = await provider.getBalance(deployer.address);
+  console.log(`👤 Deployer: ${deployer.address}`);
+  console.log(`💰 Balance: ${ethers.formatEther(balance)} HBAR\n`);
+
+  console.log("📋 Deployment Parameters:");
+  console.log(`   Virtual Pool A: ${ethers.formatEther(virtualPoolA)} HBAR`);
+  console.log(
+    `   Virtual Pool Draw: ${ethers.formatEther(virtualPoolDraw)} HBAR`
+  );
+  console.log(`   Virtual Pool B: ${ethers.formatEther(virtualPoolB)} HBAR`);
+  console.log(`   Betting End: ${new Date(bettingEnd * 1000).toISOString()}`);
+  console.log(`   Betting End Timestamp: ${bettingEnd}\n`);
+
+  console.log("⏳ Deploying contract...");
+  const FPLMatchupBet = new ethers.ContractFactory(
+    contractABI.abi,
+    contractABI.bytecode,
+    wallet
+  );
+  const contract = await FPLMatchupBet.deploy(
+    bettingEnd,
+    virtualPoolA,
+    virtualPoolDraw,
+    virtualPoolB
+  );
+
+  await contract.waitForDeployment();
+  const contractAddress = await contract.getAddress();
+  const transactionHash = contract.deploymentTransaction()?.hash || "";
+
+  console.log(`✅ Contract deployed successfully on ${networkName}!\n`);
+  console.log(`   Address: ${contractAddress}`);
+  console.log(`   Transaction: ${transactionHash}\n`);
+
+  return { contractAddress, transactionHash };
+}
+
+function getPrivateKey(): string {
+  try {
+    const privateKey = process.env.HEDERA_TESTNET_PRIVATE_KEY;
+    if (!privateKey) {
+      throw new Error(
+        "Private key not found. Please set HEDERA_TESTNET_PRIVATE_KEY in your environment variables."
+      );
+    }
+    return privateKey;
+  } catch (error) {
+    throw error;
+  }
+}
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome FPL Duel Contract Server");
+});
+
+app.post("/create", async (req: Request, res: Response) => {
+  try {
+    const { virtualPoolA, virtualPoolDraw, virtualPoolB, bettingEndTimestamp } =
+      req.body;
+
+    console.log("📝 Deploying new contract with parameters:", req.body);
+
+    // Set default values if not provided
+    const poolA = virtualPoolA
+      ? ethers.parseEther(virtualPoolA.toString())
+      : ethers.parseEther("100");
+    const poolDraw = virtualPoolDraw
+      ? ethers.parseEther(virtualPoolDraw.toString())
+      : ethers.parseEther("50");
+    const poolB = virtualPoolB
+      ? ethers.parseEther(virtualPoolB.toString())
+      : ethers.parseEther("100");
+    const bettingEnd = bettingEndTimestamp
+      ? parseInt(bettingEndTimestamp.toString())
+      : Math.floor(Date.now() / 1000) + 5 * 24 * 60 * 60; // Default 5 days
+
+    // Deploy the contract
+    const { contractAddress, transactionHash } = await deployContract(
+      bettingEnd,
+      poolA,
+      poolDraw,
+      poolB
+    );
+
+    res.status(201).json({
+      success: true,
+      contractAddress,
+      transactionHash,
+      message: "Contract deployed successfully",
+      bettingEnd: new Date(bettingEnd * 1000).toISOString(),
+    });
+  } catch (error) {
+    console.error("Error deploying contract:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to deploy contract",
+      details: error,
+    });
+  }
 });
 
 app.get("/odds/:contractAddress", async (req: Request, res: Response) => {
