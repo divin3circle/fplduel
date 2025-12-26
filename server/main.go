@@ -1,13 +1,13 @@
 package main
 
 import (
-	`database/sql`
-	`fmt`
-	`net/http`
-	`time`
+	"database/sql"
+	"fmt"
+	"net/http"
+	"time"
 
-	app2 `github.com/divin3circle/fplduel/server/internal/app`
-	`github.com/divin3circle/fplduel/server/internal/routes`
+	app2 "github.com/divin3circle/fplduel/server/internal/app"
+	"github.com/divin3circle/fplduel/server/internal/routes"
 )
 
 func main() {
@@ -31,9 +31,9 @@ func main() {
 	server := &http.Server{
 		Addr:              fmt.Sprintf(":%d", 8080),
 		Handler:           r,
-		IdleTimeout:       time.Minute,
+		IdleTimeout:       time.Minute * 10,
 		ReadHeaderTimeout: time.Second * 10,
-		WriteTimeout:      time.Second * 30,
+		WriteTimeout:      time.Minute * 5,
 	}
 
 	app.Logger.Println("Starting server on port 8080")

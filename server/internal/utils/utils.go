@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +15,27 @@ import (
 )
 
 type Envelope map[string]any
+
+type DeploymentRequest struct {
+	VirtualPoolA        string  `json:"virtualPoolA"`
+	VirtualPoolDraw     string  `json:"virtualPoolDraw"`
+	VirtualPoolB        string  `json:"virtualPoolB"`
+	BettingEndTimestamp int64  `json:"bettingEndTimestamp"`
+}
+
+type DeploymentResponse struct {
+	Success         bool   `json:"success"`
+	ContractAddress string `json:"contractAddress"`
+	TransactionHash string `json:"transactionHash"`
+	Message         string `json:"message"`
+	BettingEnd      string `json:"bettingEnd"`
+}
+
+type DeploymentResult struct {
+	MatchupID       string
+	ContractAddress string
+	Error           error
+}
 
 type Overrides struct {
 	Rules          map[string]any `json:"rules"`
@@ -188,10 +210,58 @@ func GetMatchups(client *http.Client) ([]*stores.Matchup, error) {
 	pairedTeams := pairTeams(randomValuableTeams)
 	// transform the pairs to meet the Matchup type
 	matchups, err := transformPairs(pairedTeams)
-	// return
-	return matchups, err
+	if err != nil {
+		return nil, err
+	}
+
+	for _, matchup := range matchups {
+		contractAddr, err := deployContract()
+		if err != nil {
+			return nil, fmt.Errorf("failed to deploy contract for matchup %s: %v", matchup.ID, err)
+		}
+		matchup.ContractAddress = contractAddr
+	}
+
+	return matchups, nil
 }
 
+func deployContract() (string, error) {
+	contractServerURL := "http://localhost:3000/create"
+
+	futureTs := time.Now().UTC().Add(5 * 24 * time.Hour).Unix()
+	deploymentReq := DeploymentRequest{
+		VirtualPoolA:        "100000000000000000000", // 100 HBAR in wei
+		VirtualPoolDraw:     "50000000000000000000",  // 50 HBAR in wei
+		VirtualPoolB:        "100000000000000000000", // 100 HBAR in wei
+		BettingEndTimestamp: futureTs,
+	}
+
+	reqBody, err := json.Marshal(deploymentReq)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal deployment request: %v", err)
+	}
+
+	resp, err := http.Post(contractServerURL, "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		return "", fmt.Errorf("failed to call contract deployment server: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("contract deployment server returned status %d", resp.StatusCode)
+	}
+
+	var deploymentResp DeploymentResponse
+	if err := json.NewDecoder(resp.Body).Decode(&deploymentResp); err != nil {
+		return "", fmt.Errorf("failed to parse deployment response: %v", err)
+	}
+
+	if !deploymentResp.Success {
+		return "", fmt.Errorf("contract deployment failed: %s", deploymentResp.Message)
+	}
+
+	return deploymentResp.ContractAddress, nil
+}
 func GetAllPlayers(client *http.Client) ([]*stores.Player, error){
 	bootstrapData, err := GetBootstrapData(client)
 	if err != nil {

@@ -25,6 +25,7 @@ type Matchup struct {
 	AwayTeamValue       int       `json:"away_team_value"`
 	HomeTeamTransfers   int       `json:"home_team_transfers"`
 	AwayTeamTransfers   int       `json:"away_team_transfers"`
+	ContractAddress     string    `json:"contract_address"`
 	CreatedAt           time.Time `json:"created_at"`
 	UpdatedAt           time.Time `json:"updated_at"`
 }
@@ -52,7 +53,7 @@ func (pm *PostgresMatchupStore) GetMatchupByID(id string) (*Matchup, error) {
 	       home_team_name, away_team_name, home_team_score, away_team_score,
 	       home_team_manager_id, away_team_manager_id, home_team_manager_name, away_team_manager_name,
 	       home_team_value, away_team_value, home_team_transfers, away_team_transfers,
-	       created_at, updated_at
+	       contract_address, created_at, updated_at
 	FROM matchups
 	WHERE id = $1
 	`
@@ -75,6 +76,7 @@ func (pm *PostgresMatchupStore) GetMatchupByID(id string) (*Matchup, error) {
 		&matchup.AwayTeamValue,
 		&matchup.HomeTeamTransfers,
 		&matchup.AwayTeamTransfers,
+		&matchup.ContractAddress,
 		&matchup.CreatedAt,
 		&matchup.UpdatedAt,
 	)
@@ -89,11 +91,11 @@ func (pm *PostgresMatchupStore) GetMatchupByID(id string) (*Matchup, error) {
 
 func (pm *PostgresMatchupStore) CreateMatchup(matchup *Matchup) error {
 	query := `
-	INSERT INTO matchups (home_team_id, assigned_home_team_id, assigned_away_team_id, away_team_id, game_week, home_team_name, away_team_name, home_team_manager_id, away_team_manager_id, home_team_manager_name, away_team_manager_name) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+	INSERT INTO matchups (home_team_id, assigned_home_team_id, assigned_away_team_id, away_team_id, game_week, home_team_name, away_team_name, home_team_manager_id, away_team_manager_id, home_team_manager_name, away_team_manager_name, contract_address) 
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 	RETURNING id, created_at, updated_at
 `
-	err := pm.db.QueryRow(query, matchup.HomeTeamID, matchup.AssignedHomeTeamID, matchup.AssignedAwayTeamID, matchup.AwayTeamID, matchup.Gameweek, matchup.HomeTeamName, matchup.AwayTeamName, matchup.HomeTeamManagerID, matchup.AwayTeamManagerID, matchup.HomeTeamManagerName, matchup.AwayTeamManagerName).Scan(&matchup.ID, &matchup.CreatedAt, &matchup.UpdatedAt)
+	err := pm.db.QueryRow(query, matchup.HomeTeamID, matchup.AssignedHomeTeamID, matchup.AssignedAwayTeamID, matchup.AwayTeamID, matchup.Gameweek, matchup.HomeTeamName, matchup.AwayTeamName, matchup.HomeTeamManagerID, matchup.AwayTeamManagerID, matchup.HomeTeamManagerName, matchup.AwayTeamManagerName, matchup.ContractAddress).Scan(&matchup.ID, &matchup.CreatedAt, &matchup.UpdatedAt)
 	return err
 }
 
@@ -114,7 +116,7 @@ func (pm *PostgresMatchupStore) ListMatchups() ([]*Matchup, error) {
 	       home_team_name, away_team_name, home_team_score, away_team_score,
 	       home_team_manager_id, away_team_manager_id, home_team_manager_name, away_team_manager_name,
 	       home_team_value, away_team_value, home_team_transfers, away_team_transfers,
-	       created_at, updated_at
+	       contract_address, created_at, updated_at
 	FROM matchups
 `
 	rows, err := pm.db.Query(query)
@@ -127,7 +129,7 @@ func (pm *PostgresMatchupStore) ListMatchups() ([]*Matchup, error) {
 
 	for rows.Next() {
 		var matchup Matchup
-		err := rows.Scan(&matchup.ID, &matchup.HomeTeamID, &matchup.AssignedHomeTeamID, &matchup.AwayTeamID, &matchup.AssignedAwayTeamID, &matchup.Gameweek, &matchup.HomeTeamName, &matchup.AwayTeamName, &matchup.HomeTeamScore, &matchup.AwayTeamScore, &matchup.HomeTeamManagerID, &matchup.AwayTeamManagerID, &matchup.HomeTeamManagerName, &matchup.AwayTeamManagerName, &matchup.HomeTeamValue, &matchup.AwayTeamValue, &matchup.HomeTeamTransfers, &matchup.AwayTeamTransfers, &matchup.CreatedAt, &matchup.UpdatedAt)
+		err := rows.Scan(&matchup.ID, &matchup.HomeTeamID, &matchup.AssignedHomeTeamID, &matchup.AwayTeamID, &matchup.AssignedAwayTeamID, &matchup.Gameweek, &matchup.HomeTeamName, &matchup.AwayTeamName, &matchup.HomeTeamScore, &matchup.AwayTeamScore, &matchup.HomeTeamManagerID, &matchup.AwayTeamManagerID, &matchup.HomeTeamManagerName, &matchup.AwayTeamManagerName, &matchup.HomeTeamValue, &matchup.AwayTeamValue, &matchup.HomeTeamTransfers, &matchup.AwayTeamTransfers, &matchup.ContractAddress, &matchup.CreatedAt, &matchup.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +144,7 @@ func (pm *PostgresMatchupStore) GetGameweekMatchups(gameweek int) ([]*Matchup, e
 	       home_team_name, away_team_name, home_team_score, away_team_score,
 	       home_team_manager_id, away_team_manager_id, home_team_manager_name, away_team_manager_name,
 	       home_team_value, away_team_value, home_team_transfers, away_team_transfers,
-	       created_at, updated_at
+	       contract_address, created_at, updated_at
 	FROM matchups
 	WHERE game_week = $1
 `
@@ -156,7 +158,7 @@ func (pm *PostgresMatchupStore) GetGameweekMatchups(gameweek int) ([]*Matchup, e
 
 	for rows.Next() {
 		var matchup Matchup
-		err := rows.Scan(&matchup.ID, &matchup.HomeTeamID, &matchup.AssignedHomeTeamID, &matchup.AwayTeamID, &matchup.AssignedAwayTeamID, &matchup.Gameweek, &matchup.HomeTeamName, &matchup.AwayTeamName, &matchup.HomeTeamScore, &matchup.AwayTeamScore, &matchup.HomeTeamManagerID, &matchup.AwayTeamManagerID, &matchup.HomeTeamManagerName, &matchup.AwayTeamManagerName, &matchup.HomeTeamValue, &matchup.AwayTeamValue, &matchup.HomeTeamTransfers, &matchup.AwayTeamTransfers, &matchup.CreatedAt, &matchup.UpdatedAt)
+		err := rows.Scan(&matchup.ID, &matchup.HomeTeamID, &matchup.AssignedHomeTeamID, &matchup.AwayTeamID, &matchup.AssignedAwayTeamID, &matchup.Gameweek, &matchup.HomeTeamName, &matchup.AwayTeamName, &matchup.HomeTeamScore, &matchup.AwayTeamScore, &matchup.HomeTeamManagerID, &matchup.AwayTeamManagerID, &matchup.HomeTeamManagerName, &matchup.AwayTeamManagerName, &matchup.HomeTeamValue, &matchup.AwayTeamValue, &matchup.HomeTeamTransfers, &matchup.AwayTeamTransfers, &matchup.ContractAddress, &matchup.CreatedAt, &matchup.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
