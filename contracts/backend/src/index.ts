@@ -2,12 +2,19 @@ import dotenv from "dotenv";
 import express, { Application, Request, Response } from "express";
 import { ethers } from "ethers";
 import contractABI from "../../artifacts/contracts/FPLMatchupBet.sol/FPLMatchupBet.json";
+import cors from "cors";
 
 dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const provider = new ethers.JsonRpcProvider(

@@ -1,14 +1,14 @@
+import { Matchup, useCurrentGameWeek } from "@/app/hooks/useMatchups";
 import { AWAY_TEAMS, HOME_TEAMS } from "@/lib/assets";
-import { Matchup } from "@/lib/utils";
 import { ChevronsRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export function getTeamLogo(teamId: number, teamType: "home" | "away") {
   if (teamType === "home") {
-    return HOME_TEAMS[teamId - 1];
+    return HOME_TEAMS[teamId];
   }
-  return AWAY_TEAMS[teamId - 5 - 1];
+  return AWAY_TEAMS[teamId - 5];
 }
 export function formatValue(value: number): string {
   const actualValue = value / 10;
@@ -16,12 +16,15 @@ export function formatValue(value: number): string {
 }
 
 function MatchupCard({ matchup }: { matchup: Matchup }) {
+  const currentGameWeek = useCurrentGameWeek();
   return (
     <div className="bg-background/10 rounded-2xl p-4 border border-foreground/20">
       <div className="flex items-center justify-between">
         <div className="">
           <p className="text-sm text-muted-foreground font-sans">Status</p>
-          <h1 className="text-base font-semibold font-sans">Gameweek 17</h1>
+          <h1 className="text-base font-semibold font-sans">
+            Gameweek {currentGameWeek}
+          </h1>
         </div>
         <div className="flex flex-col items-end">
           <p className="text-sm text-muted-foreground font-sans">Deadline</p>
@@ -42,40 +45,40 @@ function MatchupCard({ matchup }: { matchup: Matchup }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image
-              src={getTeamLogo(matchup.home.id, "home")}
-              alt={matchup.home.name}
+              src={getTeamLogo(matchup.assigned_home_team_id, "home")}
+              alt={matchup.home_team_name}
               width={20}
               height={20}
               className="w-6 h-6 rounded-md object-cover"
             />
             <p className="text-sm font-semibold font-sans">
-              {matchup.home.name.slice(0, 15)}
-              {matchup.home.name.length > 15 && "..."}
+              {matchup.home_team_name.slice(0, 15)}
+              {matchup.home_team_name.length > 15 && "..."}
             </p>
           </div>
           <div className="flex items-center justify-center w-18 h-8 bg-foreground/10 rounded-md">
             <p className="text-sm font-semibold font-sans">
-              {formatValue(matchup.home.value_with_bank)}
+              {formatValue(matchup.home_team_value)}
             </p>
           </div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image
-              src={getTeamLogo(matchup.away.id, "away")}
-              alt={matchup.away.name}
+              src={getTeamLogo(matchup.assigned_away_team_id, "away")}
+              alt={matchup.away_team_name}
               width={20}
               height={20}
               className="w-6 h-6 rounded-md object-cover"
             />
             <p className="text-sm font-semibold font-sans">
-              {matchup.away.name.slice(0, 15)}
-              {matchup.away.name.length > 15 && "..."}
+              {matchup.away_team_name.slice(0, 15)}
+              {matchup.away_team_name.length > 15 && "..."}
             </p>
           </div>
           <div className="flex items-center justify-center w-18 h-8 bg-foreground/10 rounded-md">
             <p className="text-sm font-semibold font-sans">
-              {formatValue(matchup.away.value_with_bank)}
+              {formatValue(matchup.away_team_value)}
             </p>
           </div>
         </div>

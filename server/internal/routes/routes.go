@@ -3,10 +3,22 @@ package routes
 import (
 	"github.com/divin3circle/fplduel/server/internal/app"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 func SetupRoutes(app *app.Application) *chi.Mux {
 	r := chi.NewRouter()
+
+	// CORS middleware
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:3001"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
+
 	r.Get("/health", app.HealthCheck)
 
 	// MATCHUP ROUTES
@@ -40,6 +52,9 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 	r.Get("/player/id/{id}", app.PlayerHandler.HandleGetPlayerByID)
 	r.Get("/player/code/{code}", app.PlayerHandler.HandleGetPlayerByCode)
 	r.Get("/player/jersey/{code}", app.PlayerHandler.HandleGetPlayerImageURL)
+
+    // Manager picks proxy
+    r.Get("/teams/{id}/picks/{gameweek}", app.TeamHandler.HandleGetManagerPicks)
 
 	return r
 }

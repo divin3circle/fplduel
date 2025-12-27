@@ -1,32 +1,32 @@
+import { Matchup } from "@/app/hooks/useMatchups";
 import { getTeamLogo } from "@/components/matchupcard";
-import { Button } from "@/components/ui/button";
-import { Matchup } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
 
 function Header({ matchup }: { matchup: Matchup }) {
-  const contract = "0x5AD5BaaE06F41f2cE4DDc193C46Ae04439B159ba";
   return (
     <div className="w-full bg-foreground/5 rounded-2xl mt-4 p-4">
       <div className="w-full flex items-center justify-between">
         <p className="text-sm font-sans">Gameweek 17</p>
         <p className="text-sm font-sans hover:text-orange-500 cursor-pointer hover:underline">
-          {contract.slice(0, 6)}...{contract.slice(-4)}
+          {matchup.contract_address.slice(0, 6)}...
+          {matchup.contract_address.slice(-4)}
         </p>
-        <Button
-          variant="outline"
-          className="rounded-2xl font-sans font-semibold text-sm shadow-none lowercase w-auto md:w-[150px]"
+        <Link
+          href={`https://hashscan.io/testnet/contract/${matchup.contract_address}`}
+          className="rounded-3xl border border-foreground/20 p-2 text-center font-sans font-semibold text-sm shadow-none lowercase w-auto md:w-37.5"
         >
           View Contract
-        </Button>
+        </Link>
       </div>
       <div className="flex items-center justify-center mt-4">
         <div className="flex flex-col-reverse md:flex-row gap-2 items-center justify-center">
           <h1 className="text-base md:text-2xl font-semibold font-sans">
-            {matchup.home.name}
+            {matchup.home_team_name}
           </h1>
           <Image
-            src={getTeamLogo(matchup.home.id, "home")}
-            alt={matchup.home.name}
+            src={getTeamLogo(matchup.assigned_home_team_id, "home")}
+            alt={matchup.home_team_name}
             width={100}
             height={100}
             className="w-10 h-10 rounded-md object-cover"
@@ -35,11 +35,11 @@ function Header({ matchup }: { matchup: Matchup }) {
         <p className="md:text-4xl text-2xl mx-10"> - </p>
         <div className="flex flex-col-reverse md:flex-row gap-2 items-center justify-center">
           <h1 className="text-base md:text-2xl font-semibold font-sans">
-            {matchup.away.name}
+            {matchup.away_team_name}
           </h1>
           <Image
-            src={getTeamLogo(matchup.away.id, "away")}
-            alt={matchup.away.name}
+            src={getTeamLogo(matchup.assigned_away_team_id, "away")}
+            alt={matchup.away_team_name}
             width={100}
             height={100}
             className="w-10 h-10 rounded-md object-cover"

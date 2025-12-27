@@ -1,12 +1,10 @@
 "use client";
+import { useFormation } from "@/app/hooks/useLineups";
+import { getTeams, Matchup } from "@/app/hooks/useMatchups";
+import { useGetPlayerImageUrl } from "@/app/hooks/usePlayers";
 import { formatValue, getTeamLogo } from "@/components/matchupcard";
-import {
-  getFormation,
-  Lineup,
-  Matchup,
-  SAMPLE_LINEUP,
-  Team,
-} from "@/lib/utils";
+import { getFormation, Lineup, SAMPLE_LINEUP, Team } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -18,6 +16,9 @@ const PlayerView = ({
   isSubstitute?: boolean;
 }) => {
   const router = useRouter();
+  const { imageUrl, isLoading: isLoadingImage } = useGetPlayerImageUrl(
+    player.element
+  );
 
   const handleClick = () => {
     router.push(`/player/${player.element}`);
@@ -29,17 +30,21 @@ const PlayerView = ({
         isSubstitute ? "flex-col" : "flex-row"
       } gap-1 items-center rounded-md bg-foreground/5 cursor-pointer hover:bg-foreground/10 transition-all duration-200 hover:scale-95 backdrop-blur-2xl border border-foreground/20 dark:border-foreground/10`}
     >
-      <Image
-        src="/sample.webp"
-        alt="Player"
-        width={100}
-        height={100}
-        className={`w-10 h-10 object-cover rounded-t-md ${
-          isSubstitute
-            ? "rotate-0 w-auto h-auto"
-            : "rotate-270 md:w-12 md:h-12 "
-        }`}
-      />
+      {isLoadingImage ? (
+        <Loader2 className="animate-spin" size="sm" />
+      ) : (
+        <Image
+          src={imageUrl || "/sample.webp"}
+          alt="Player"
+          width={100}
+          height={100}
+          className={`w-10 h-10 object-cover rounded-t-md ${
+            isSubstitute
+              ? "rotate-0 w-auto h-auto"
+              : "rotate-270 md:w-12 md:h-12 "
+          }`}
+        />
+      )}
       {player.is_captain && (
         <div className="absolute right-1/2 top-0 bg-black rounded-full w-4 h-4 rotate-270">
           <p className="text-xs font-semibold font-sans text-center ">C</p>
@@ -51,7 +56,7 @@ const PlayerView = ({
         } p-1`}
       >
         <p className="text-xs font-semibold font-sans text-center">
-          {player.position}
+          {player.element}
         </p>
       </div>
     </div>
@@ -69,11 +74,38 @@ const SubstituteView = () => {
   );
 };
 
-const PitchView = () => {
-  const formation = getFormation(SAMPLE_LINEUP);
+const PitchView = ({ managerId }: { managerId: number }) => {
+  const { formation, isLoading, error } = useFormation(managerId);
+  if (isLoading) {
+    return (
+      <div className="w-full h-150 md:h-full bg-foreground/5 rounded-2xl flex items-center justify-center">
+        <Loader2 />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-150 md:h-full bg-foreground/5 rounded-2xl flex items-center justify-center">
+        <p className="text-sm font-sans text-red-500 text-center">
+          {error.message}
+        </p>
+      </div>
+    );
+  }
+
+  if (!formation) {
+    return (
+      <div className="w-full h-150 md:h-full bg-foreground/5 rounded-2xl flex items-center justify-center">
+        <p className="text-sm font-sans text-center">
+          No Formation found for manager {managerId}
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full h-[600px] md:h-full bg-foreground/5 rounded-2xl">
+    <div className="w-full h-150 md:h-full bg-foreground/5 rounded-2xl">
       <div className="relative w-full h-full hidden md:block">
         <Image
           src="/pitch.png"
@@ -164,7 +196,7 @@ const TeamView = ({
         </div>
       </div>
       <div className="mt-2 md:h-[90%]">
-        <PitchView />
+        <PitchView managerId={team.entry} />
         <p className="text-sm font-semibold font-sans mt-4 mb-1">Substitutes</p>
         <SubstituteView />
       </div>
@@ -173,10 +205,11 @@ const TeamView = ({
 };
 
 function Lineups({ matchup }: { matchup: Matchup }) {
+  const teams = getTeams(matchup);
   return (
     <div className="w-full bg-foreground/5 rounded-2xl mt-4 flex items-center justify-between flex-col md:flex-row">
-      <TeamView team={matchup.home} teamType="home" />
-      <TeamView team={matchup.away} teamType="away" />
+      <TeamView team={teams.home} teamType="home" />
+      <TeamView team={teams.away} teamType="away" />
     </div>
   );
 }

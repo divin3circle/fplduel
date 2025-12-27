@@ -1,13 +1,15 @@
-import { Matchup } from "@/lib/utils";
+"use client";
+
+import { Matchup } from "@/app/hooks/useMatchups";
 import Link from "next/link";
-import React from "react";
 
 function AIComparisons({ matchup }: { matchup: Matchup }) {
   return (
     <div className="w-full bg-foreground/5 rounded-2xl mt-4 p-4">
       <h1 className="text-base font-semibold font-sans">AI Comparisons</h1>
       <p className="text-sm text-muted-foreground font-sans">
-        This is what Azure AI says about the two teams in this matchup.
+        This is what Azure AI says about the two teams in this matchup.(
+        {matchup.id.slice(0, 6)}...{matchup.id.slice(-4)})
       </p>
       <div className="my-4">
         <h1 className="text-sm font-semibold font-sans">Home Team</h1>

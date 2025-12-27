@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -167,4 +168,50 @@ func (th *TeamHandler) HandleGetTeamJerseyURL(w http.ResponseWriter, r *http.Req
 
 	jerseyURL := th.TeamStore.GetTeamJerseyURL(teamCode, teamJerseyRequest.Position)
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"jersey_url": jerseyURL})
+}
+
+func (th *TeamHandler) HandleGetManagerPicks(w http.ResponseWriter, r *http.Request) {
+	managerIdStr, err := utils.ReadIDParam(r, "id")
+	if err != nil {
+		th.Logger.Printf("Error reading manager ID param: %v", err)
+		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "Manager ID is required"})
+		return
+	}
+
+	gameWeek, err := utils.ReadIDParam(r, "gameweek")
+	if err != nil {
+		th.Logger.Printf("Error reading gameweek param: %v", err)
+		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "Gameweek is required"})
+		return
+	}
+
+	httpClient := &http.Client{Timeout: 10 * time.Second}
+
+	url := "https://fantasy.premierleague.com/api/entry/" + managerIdStr + "/event/" + gameWeek + "/picks/"
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		th.Logger.Printf("Error creating upstream request: %v", err)
+		utils.WriteJSON(w, http.StatusInternalServerError, utils.Envelope{"error": "Upstream request init failed"})
+		return
+	}
+	req.Header.Set("User-Agent", "fplduel/1.0 (+https://github.com/divin3circle/fplduel)")
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		th.Logger.Printf("Error calling upstream: %v", err)
+		utils.WriteJSON(w, http.StatusBadGateway, utils.Envelope{"error": "Upstream call failed"})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		th.Logger.Printf("Upstream returned status %d", resp.StatusCode)
+		utils.WriteJSON(w, http.StatusBadGateway, utils.Envelope{"error": "Upstream returned non-200"})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		th.Logger.Printf("Error streaming upstream body: %v", err)
+	}
 }

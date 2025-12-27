@@ -1,5 +1,5 @@
+import { Matchup } from "@/app/hooks/useMatchups";
 import { getTeamLogo } from "@/components/matchupcard";
-import { Matchup } from "@/lib/utils";
 import Image from "next/image";
 
 function Bet({ matchup }: { matchup: Matchup }) {
@@ -14,8 +14,8 @@ function Bet({ matchup }: { matchup: Matchup }) {
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-semibold font-sans">1</p>
             <Image
-              src={getTeamLogo(matchup.home.id, "home")}
-              alt={matchup.home.name}
+              src={getTeamLogo(matchup.assigned_home_team_id, "home")}
+              alt={matchup.home_team_name}
               width={20}
               height={20}
               className="w-6 h-6 rounded-md object-cover"
@@ -31,8 +31,8 @@ function Bet({ matchup }: { matchup: Matchup }) {
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-semibold font-sans">2</p>
             <Image
-              src={getTeamLogo(matchup.away.id, "away")}
-              alt={matchup.away.name}
+              src={getTeamLogo(matchup.assigned_away_team_id, "away")}
+              alt={matchup.away_team_name}
               width={20}
               height={20}
               className="w-6 h-6 rounded-md object-cover"
