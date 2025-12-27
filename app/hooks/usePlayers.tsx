@@ -72,7 +72,12 @@ export const useGetPlayerImageUrl = (playerCode: number) => {
   return { imageUrl: data, isLoading: isLoading || playerLoading, error };
 };
 
-async function getPlayerByCode(playerCode: number): Promise<Player> {
+async function getPlayerByCode(
+  playerCode: number | undefined
+): Promise<Player> {
+  if (!playerCode) {
+    throw new Error("Invalid player code");
+  }
   try {
     const response = await axios.get(
       `${getServerUrl(getEnvironment())}/player/id/${playerCode}`
@@ -85,7 +90,7 @@ async function getPlayerByCode(playerCode: number): Promise<Player> {
   }
 }
 
-export const useGetPlayerByCode = (playerCode: number) => {
+export const useGetPlayerByCode = (playerCode: number | undefined) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["playerByCode", playerCode],
     queryFn: () => getPlayerByCode(playerCode),
