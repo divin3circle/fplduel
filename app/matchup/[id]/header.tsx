@@ -13,6 +13,7 @@ function Header({ matchup }: { matchup: Matchup }) {
           {matchup.contract_address.slice(-4)}
         </p>
         <Link
+          target="_blank"
           href={`https://hashscan.io/testnet/contract/${matchup.contract_address}`}
           className="rounded-3xl border border-foreground/20 p-2 text-center font-sans font-semibold text-sm shadow-none lowercase w-auto md:w-37.5"
         >

@@ -75,7 +75,7 @@ export const useGetPlayerImageUrl = (playerCode: number) => {
 async function getPlayerByCode(playerCode: number): Promise<Player> {
   try {
     const response = await axios.get(
-      `${getServerUrl(getEnvironment())}/player/code/${playerCode}`
+      `${getServerUrl(getEnvironment())}/player/id/${playerCode}`
     );
     const data: { player: Player } = response.data;
     return data.player;

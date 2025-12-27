@@ -13,16 +13,12 @@ function AIComparisons({ matchup }: { matchup: Matchup }) {
       </p>
       <div className="my-4">
         <h1 className="text-sm font-semibold font-sans">Home Team</h1>
-        <p className="text-sm text-muted-foreground font-sans md:max-w-1/2 leading-relaxed">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-          quos. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          Quisquam,
+        <p className="text-sm text-muted-foreground text-center font-sans md:max-w-1/2 leading-relaxed">
+          Coming soon
         </p>
         <h1 className="text-sm font-semibold font-sans mt-4">Away Team</h1>
-        <p className="text-sm text-muted-foreground font-sans md:max-w-1/2 leading-relaxed">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-          quos. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          Quisquam,
+        <p className="text-sm text-muted-foreground text-center font-sans md:max-w-1/2 leading-relaxed">
+          Coming soon
         </p>
       </div>
       <p className="text-xs text-muted-foreground font-sans">

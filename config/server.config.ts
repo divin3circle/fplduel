@@ -4,7 +4,7 @@ const config = {
     production: "",
   },
   SMART_CONTRACT_SERVER_URL: {
-    development: "http://localhost:3000",
+    development: "http://localhost:3001",
     production: "",
   },
 };
