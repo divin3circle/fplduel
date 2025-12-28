@@ -1,17 +1,28 @@
 import { Matchup } from "@/app/hooks/useMatchups";
 import { getTeamLogo } from "@/components/matchupcard";
+import { CopyIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 
 function Header({ matchup }: { matchup: Matchup }) {
   return (
     <div className="w-full bg-foreground/5 rounded-2xl mt-4 p-4">
       <div className="w-full flex items-center justify-between">
         <p className="text-sm font-sans">Gameweek 17</p>
-        <p className="text-sm font-sans hover:text-orange-500 cursor-pointer hover:underline">
-          {matchup.contract_address.slice(0, 6)}...
-          {matchup.contract_address.slice(-4)}
-        </p>
+        <button
+          className="flex items-center justify-center gap-1"
+          onClick={() => {
+            navigator.clipboard.writeText(matchup.contract_address);
+            toast.success("Contract address copied to clipboard!");
+          }}
+        >
+          <p className="text-sm font-sans hover:text-orange-500 cursor-pointer hover:underline">
+            {matchup.contract_address.slice(0, 6)}...
+            {matchup.contract_address.slice(-4)}
+          </p>
+          <CopyIcon className="text-orange-500" size={14} />
+        </button>
         <Link
           target="_blank"
           href={`https://hashscan.io/testnet/contract/${matchup.contract_address}`}

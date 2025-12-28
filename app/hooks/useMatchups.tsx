@@ -6,6 +6,7 @@ import {
 import { Team } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useActiveAccount } from "thirdweb/react";
 
 export interface Matchup {
   id: string;
@@ -44,6 +45,13 @@ export interface MatchupOdds {
 export interface Teams {
   home: Team;
   away: Team;
+}
+
+export interface StateResponse {
+  owner: string;
+  bettingEnd: string;
+  settled: boolean;
+  totalPool: string;
 }
 
 async function getCurrentGameWeek(): Promise<number> {
@@ -172,3 +180,64 @@ export function getTeams(matchup: Matchup): Teams {
   };
   return teams;
 }
+
+async function getMatchupState(
+  contractAddress: string | undefined
+): Promise<StateResponse | null> {
+  if (!contractAddress) {
+    return null;
+  }
+  try {
+    const response = await axios.get(
+      `${getContractServerUrl(getEnvironment())}/state/${contractAddress}`
+    );
+    const state: StateResponse = response.data;
+    return state;
+  } catch (error) {
+    console.error("Error fetching matchup state:", error);
+    return null;
+  }
+}
+
+export const useGetMatchupState = (contractAddress: string | undefined) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["matchupState", contractAddress],
+    queryFn: () => getMatchupState(contractAddress),
+    enabled: !!contractAddress,
+  });
+
+  return { state: data, isLoading, error };
+};
+
+async function getClaimableAmount(
+  userAddress: string | undefined,
+  contractAddress: string | undefined
+): Promise<string | null> {
+  if (!userAddress || !contractAddress) {
+    return null;
+  }
+  try {
+    const response = await axios.get(
+      `${getContractServerUrl(
+        getEnvironment()
+      )}/claim/${userAddress}/contract/${contractAddress}`
+    );
+    const amount: string = response.data.amount;
+    return amount;
+  } catch (error) {
+    console.error("Error fetching claimable amount:", error);
+    return null;
+  }
+}
+
+export const useGetClaimableAmount = (contractAddress: string | undefined) => {
+  const userAddress = useActiveAccount();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["claimableAmount", userAddress, contractAddress],
+    queryFn: () => getClaimableAmount(userAddress?.address, contractAddress),
+    enabled: !!userAddress && !!contractAddress,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return { claimableAmount: data, isLoading, error };
+};

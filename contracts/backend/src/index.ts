@@ -110,7 +110,7 @@ app.post("/create", async (req: Request, res: Response) => {
       : ethers.parseEther("100");
     const bettingEnd = bettingEndTimestamp
       ? parseInt(bettingEndTimestamp.toString())
-      : Math.floor(Date.now() / 1000) + 5 * 24 * 60 * 60; // Default 5 days
+      : Math.floor(Date.now() / 1000) + 2 * 60 * 60; // Default 2 hours
 
     // Deploy the contract
     const { contractAddress, transactionHash } = await deployContract(

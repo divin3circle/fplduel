@@ -5,6 +5,7 @@ import QueryProvider from "./QueryProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { ThirdwebProvider } from "thirdweb/react";
+import { Toaster } from "@/components/ui/sonner";
 
 const karlaSans = Karla({
   variable: "--font-karla",
@@ -35,6 +36,7 @@ export default function RootLayout({
             <QueryProvider>{children}</QueryProvider>
             <ThemeToggle />
           </ThemeProvider>
+          <Toaster />
         </ThirdwebProvider>
       </body>
     </html>

@@ -72,7 +72,7 @@ function PlayerPage() {
           alt={player.name}
           width={150}
           height={150}
-          className="w-24 h-24 md:w-32 md:h-32 object-contain rounded-md"
+          className="w-24 h-24 md:w-42 md:h-42 object-contain rounded-2xl border border-foreground/20 p-2"
         />
         <p className="text-base font-semibold font-sans text-foreground mt-2">
           {player.web_name}

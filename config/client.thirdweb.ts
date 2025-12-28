@@ -34,5 +34,4 @@ export const hederaChain = defineChain({
   networkId: currentNetwork.networkId,
 });
 
-// Export as hederaTestnet for backward compatibility (will be mainnet if configured)
 export const hederaTestnet = hederaChain;
