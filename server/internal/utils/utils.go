@@ -228,7 +228,7 @@ func GetMatchups(client *http.Client) ([]*stores.Matchup, error) {
 func deployContract() (string, error) {
 	contractServerURL := "http://localhost:3000/create"
 
-	futureTs := time.Now().UTC().Add(5 * 24 * time.Hour).Unix()
+	futureTs := time.Now().UTC().Add( 2 * time.Hour).Unix()
 	deploymentReq := DeploymentRequest{
 		VirtualPoolA:        "100000000000000000000", // 100 HBAR in wei
 		VirtualPoolDraw:     "50000000000000000000",  // 50 HBAR in wei
