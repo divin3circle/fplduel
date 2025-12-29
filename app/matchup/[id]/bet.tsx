@@ -1,4 +1,5 @@
 import {
+  getBetPercentages,
   useBet,
   useClaim,
   useGetNumberOfBets,
@@ -323,7 +324,11 @@ function Bet({ matchup }: { matchup: Matchup }) {
           </div>
 
           <p className="text-base font-semibold font-sans">
-            {odds.team_a_bets} Bets
+            {odds.team_a_bets} Bets(
+            <span className="text-xs font-sans text-muted-foreground">
+              {getBetPercentages(odds).teamAPercentage}%
+            </span>
+            )
           </p>
         </button>
         <button
@@ -333,7 +338,11 @@ function Bet({ matchup }: { matchup: Matchup }) {
           <p className="text-sm font-semibold font-sans">x</p>
 
           <p className="text-base font-semibold font-sans">
-            {odds.draw_bets} Bets
+            {odds.draw_bets} Bets(
+            <span className="text-xs font-sans text-muted-foreground">
+              {getBetPercentages(odds).drawPercentage}%
+            </span>
+            )
           </p>
         </button>
         <button
@@ -350,12 +359,18 @@ function Bet({ matchup }: { matchup: Matchup }) {
               className="w-6 h-6 rounded-md object-cover"
             />
           </div>
-
-          <p className="text-base font-semibold font-sans">
-            {odds.team_b_bets} Bets
+          <p className="text-base font-semibold font-sans flex items-center">
+            {odds.team_b_bets} Bets(
+            <span className="text-xs font-sans text-muted-foreground">
+              {getBetPercentages(odds).teamBPercentage}%
+            </span>
+            )
           </p>
         </button>
       </div>
+      <p className="mt-4 text-center text-sm font-sans text-muted-foreground">
+        Total Bets Placed: {odds.total_bets} Bets
+      </p>
       {isBetModalOpen && (
         <BetModal
           matchup={matchup}

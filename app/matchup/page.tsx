@@ -12,7 +12,7 @@ function MatchupsPage() {
           href={`/`}
           className="flex items-center text-sm font-semibold font-sans text-muted-foreground hover:text-foreground transition-all duration-200 group"
         >
-          <ChevronsLeft className="w-4 h-4 ml-2 group-hover:translate-x-[-2px] transition-all duration-200" />
+          <ChevronsLeft className="w-4 h-4 ml-2 group-hover:-translate-x-0.5 transition-all duration-200" />
           Back to Home
         </Link>
       </div>

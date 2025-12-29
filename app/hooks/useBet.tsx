@@ -71,6 +71,34 @@ async function getNumberOfBets({
   }
 }
 
+async function getBetsByUser({
+  userAddress,
+}: {
+  userAddress: string | undefined;
+}): Promise<Bet[]> {
+  if (!userAddress) {
+    console.warn("No user address provided for fetching bets.");
+    return [];
+  }
+  try {
+    const response = await axios.get(
+      `${getServerUrl(getEnvironment())}/bets/${userAddress}`
+    );
+    return response.data as Bet[];
+  } catch (error) {
+    console.error("Error fetching bets by user:", error);
+    throw error;
+  }
+}
+
+export function useBetsByUser(userAddress: string | undefined) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["betsByUser", userAddress],
+    queryFn: () => getBetsByUser({ userAddress }),
+  });
+  return { data, isLoading, error };
+}
+
 export function useBet(contractAddress: string) {
   const {
     mutate: sendTx,
@@ -171,4 +199,24 @@ export function useGetNumberOfBets(matchupId: string) {
     queryFn: () => getNumberOfBets({ matchupId }),
   });
   return { data, isLoading, error };
+}
+
+export function getBetPercentages(betCounts: BetCount) {
+  const totalBets = betCounts.total_bets;
+  if (totalBets === 0) {
+    return {
+      teamAPercentage: 0,
+      teamBPercentage: 0,
+      drawPercentage: 0,
+    };
+  }
+  const teamAPercentage = (betCounts.team_a_bets / totalBets) * 100;
+  const teamBPercentage = (betCounts.team_b_bets / totalBets) * 100;
+  const drawPercentage = (betCounts.draw_bets / totalBets) * 100;
+
+  return {
+    teamAPercentage: teamAPercentage.toFixed(2),
+    teamBPercentage: teamBPercentage.toFixed(2),
+    drawPercentage: drawPercentage.toFixed(2),
+  };
 }

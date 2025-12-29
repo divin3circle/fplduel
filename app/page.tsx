@@ -6,6 +6,7 @@ import { GiftIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Matchups from "@/components/matchups";
+import HistoryView from "@/components/history";
 
 export default function Home() {
   const [tab, setTab] = useState<"highlights" | "history" | "live">(
@@ -89,7 +90,16 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <Matchups />
+      {tab === "highlights" && <Matchups />}
+      {tab === "history" && <HistoryView />}
+      {tab === "live" && (
+        <div className="mt-8 mb-4 mx-2">
+          <h2 className="text-2xl font-semibold font-sans">Live Bets</h2>
+          <p className="text-sm text-muted-foreground font-sans mt-2">
+            Coming Soon
+          </p>
+        </div>
+      )}
     </div>
   );
 }

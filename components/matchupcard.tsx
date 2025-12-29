@@ -1,8 +1,14 @@
-import { Matchup, useCurrentGameWeek } from "@/app/hooks/useMatchups";
+import { useGetNumberOfBets } from "@/app/hooks/useBet";
+import {
+  Matchup,
+  useCurrentGameWeek,
+  useGetMatchupState,
+} from "@/app/hooks/useMatchups";
 import { AWAY_TEAMS, HOME_TEAMS } from "@/lib/assets";
 import { ChevronsRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Skeleton } from "./ui/skeleton";
 
 export function getTeamLogo(teamId: number, teamType: "home" | "away") {
   if (teamType === "home") {
@@ -17,6 +23,8 @@ export function formatValue(value: number): string {
 
 function MatchupCard({ matchup }: { matchup: Matchup }) {
   const currentGameWeek = useCurrentGameWeek();
+  const { data, isLoading } = useGetNumberOfBets(matchup.id);
+  const { state } = useGetMatchupState(matchup.contract_address);
   return (
     <div className="bg-background/10 rounded-2xl p-4 border border-foreground/20">
       <div className="flex items-center justify-between">
@@ -28,8 +36,8 @@ function MatchupCard({ matchup }: { matchup: Matchup }) {
         </div>
         <div className="flex flex-col items-end">
           <p className="text-sm text-muted-foreground font-sans">Deadline</p>
-          <h1 className="text-base font-semibold font-sans">
-            December 15, 2025
+          <h1 className="text-xs font-semibold font-sans">
+            {new Date(state?.bettingEnd || "").toLocaleString()}
           </h1>
         </div>
       </div>
@@ -86,15 +94,33 @@ function MatchupCard({ matchup }: { matchup: Matchup }) {
       <div className="flex items-center justify-between mt-4 gap-2">
         <div className="flex items-center justify-between bg-foreground/10 rounded-xl px-2 py-2 w-[37%] border border-foreground/20 dark:border-foreground/10 cursor-pointer hover:bg-foreground/20 transition-all duration-200">
           <p className="text-sm font-semibold font-sans">1</p>
-          <p className="text-base font-semibold font-sans">2.50</p>
+          {isLoading ? (
+            <Skeleton className="w-8 h-6 rounded-md" />
+          ) : (
+            <p className="text-xs font-semibold font-sans">
+              {data?.team_a_bets} Bets
+            </p>
+          )}
         </div>
         <div className="flex items-center justify-between bg-foreground/10 rounded-xl px-2 py-2 w-1/4 border border-foreground/20 dark:border-foreground/10 cursor-pointer hover:bg-foreground/20 transition-all duration-200">
           <p className="text-sm font-semibold font-sans">x</p>
-          <p className="text-base font-semibold font-sans">8.45</p>
+          {isLoading ? (
+            <Skeleton className="w-8 h-6 rounded-md" />
+          ) : (
+            <p className="text-xs font-semibold font-sans">
+              {data?.draw_bets} Bets
+            </p>
+          )}
         </div>
         <div className="flex items-center justify-between bg-foreground/10 rounded-xl px-2 py-2 w-[37%] border border-foreground/20 dark:border-foreground/10 cursor-pointer hover:bg-foreground/20 transition-all duration-200">
           <p className="text-sm font-semibold font-sans">2</p>
-          <p className="text-base font-semibold font-sans">2.50</p>
+          {isLoading ? (
+            <Skeleton className="w-8 h-6 rounded-md" />
+          ) : (
+            <p className="text-xs font-semibold font-sans">
+              {data?.team_b_bets} Bets
+            </p>
+          )}
         </div>
       </div>
       <div className="mt-2 flex items-center justify-center">
