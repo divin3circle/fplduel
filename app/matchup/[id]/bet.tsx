@@ -1,26 +1,92 @@
-import { useBet, useClaim } from "@/app/hooks/useBet";
+import {
+  useBet,
+  useClaim,
+  useGetNumberOfBets,
+  useRecordBet,
+} from "@/app/hooks/useBet";
 import {
   Matchup,
   useGetClaimableAmount,
-  useGetMatchupOdds,
   useGetMatchupState,
 } from "@/app/hooks/useMatchups";
 import { getTeamLogo } from "@/components/matchupcard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useActiveAccount } from "thirdweb/react";
 
 function BetModal({
   matchup,
   selectedTeam,
+  selectedTeamOdds,
   close,
 }: {
   matchup: Matchup;
   selectedTeam: 0 | 1 | 2;
+  selectedTeamOdds: number;
   close: () => void;
 }) {
-  const { onClick, isPending } = useBet(matchup.contract_address);
+  const { onClick, isPending, transactionHash, isSuccess } = useBet(
+    matchup.contract_address
+  );
   const [amount, setAmount] = useState<number>(10);
+  const {
+    mutate: recordBet,
+    isPending: isRecordPending,
+    isError,
+    isSuccess: isRecordSuccess,
+  } = useRecordBet();
+  const activeAccount = useActiveAccount();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (
+      isSuccess &&
+      !isRecordPending &&
+      !isRecordSuccess &&
+      !isError &&
+      activeAccount?.address &&
+      transactionHash
+    ) {
+      recordBet({
+        userAddress: activeAccount.address,
+        amount: BigInt(amount),
+        choice: selectedTeam,
+        matchup: matchup,
+        txnHash: transactionHash,
+        odds: selectedTeamOdds,
+      });
+    }
+  }, [
+    isSuccess,
+    isRecordPending,
+    isRecordSuccess,
+    isError,
+    activeAccount?.address,
+    transactionHash,
+    amount,
+    selectedTeam,
+    matchup,
+    selectedTeamOdds,
+    recordBet,
+  ]);
+
+  useEffect(() => {
+    if (isRecordSuccess) {
+      toast.success("Bet recorded successfully!");
+      queryClient.invalidateQueries({ queryKey: ["numberOfBets", matchup.id] });
+      close();
+    }
+  }, [isRecordSuccess, close, queryClient, matchup.id]);
+
+  useEffect(() => {
+    if (isError) {
+      toast.error("Failed to record bet. Please contact support.");
+      close();
+    }
+  }, [isError, close]);
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50">
       <div className="rounded-3xl p-4 bg-background max-w-2xl w-full border border-foreground/20 dark:border-foreground/10 mx-1">
@@ -93,9 +159,7 @@ function BetModal({
 }
 
 function Bet({ matchup }: { matchup: Matchup }) {
-  const { odds, isLoading, error } = useGetMatchupOdds(
-    matchup.contract_address
-  );
+  const { data: odds, isLoading, error } = useGetNumberOfBets(matchup.id);
   const [isBetModalOpen, setIsBetModalOpen] = useState(false);
   const {
     state,
@@ -111,6 +175,7 @@ function Bet({ matchup }: { matchup: Matchup }) {
     matchup.contract_address
   );
   const [selectedTeam, setSelectedTeam] = useState<0 | 1 | 2>(0);
+  const [selectedTeamOdds, setSelectedTeamOdds] = useState<number>(0);
 
   if (error || stateError || claimableAmountError) {
     return (
@@ -130,6 +195,23 @@ function Bet({ matchup }: { matchup: Matchup }) {
 
   const handleBetClick = (team: 0 | 1 | 2) => {
     setSelectedTeam(team);
+    if (team === 0) {
+      setSelectedTeamOdds(
+        odds
+          ? parseFloat((1 + odds.team_a_bets / odds.total_bets).toFixed(2))
+          : 0
+      );
+    } else if (team === 1) {
+      setSelectedTeamOdds(
+        odds ? parseFloat((1 + odds.draw_bets / odds.total_bets).toFixed(2)) : 0
+      );
+    } else if (team === 2) {
+      setSelectedTeamOdds(
+        odds
+          ? parseFloat((1 + odds.team_b_bets / odds.total_bets).toFixed(2))
+          : 0
+      );
+    }
     setIsBetModalOpen(true);
   };
 
@@ -240,7 +322,9 @@ function Bet({ matchup }: { matchup: Matchup }) {
             />
           </div>
 
-          <p className="text-base font-semibold font-sans">{odds?.teamA}</p>
+          <p className="text-base font-semibold font-sans">
+            {odds.team_a_bets} Bets
+          </p>
         </button>
         <button
           className="flex items-center justify-between rounded-xl px-2 py-2 w-1/4 border border-foreground/20 dark:border-foreground/10 cursor-pointer hover:bg-foreground/5 transition-all duration-200"
@@ -248,7 +332,9 @@ function Bet({ matchup }: { matchup: Matchup }) {
         >
           <p className="text-sm font-semibold font-sans">x</p>
 
-          <p className="text-base font-semibold font-sans">{odds?.draw}</p>
+          <p className="text-base font-semibold font-sans">
+            {odds.draw_bets} Bets
+          </p>
         </button>
         <button
           className="flex items-center justify-between rounded-xl px-2 py-2 w-[37%] border border-foreground/20 dark:border-foreground/10 cursor-pointer hover:bg-foreground/5 transition-all duration-200"
@@ -265,13 +351,16 @@ function Bet({ matchup }: { matchup: Matchup }) {
             />
           </div>
 
-          <p className="text-base font-semibold font-sans">{odds?.teamB}</p>
+          <p className="text-base font-semibold font-sans">
+            {odds.team_b_bets} Bets
+          </p>
         </button>
       </div>
       {isBetModalOpen && (
         <BetModal
           matchup={matchup}
           selectedTeam={selectedTeam}
+          selectedTeamOdds={selectedTeamOdds}
           close={() => {
             setIsBetModalOpen(false);
           }}

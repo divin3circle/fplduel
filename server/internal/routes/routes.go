@@ -56,5 +56,13 @@ func SetupRoutes(app *app.Application) *chi.Mux {
     // Manager picks proxy
     r.Get("/teams/{id}/picks/{gameweek}", app.TeamHandler.HandleGetManagerPicks)
 
+	// BET ROUTES
+	/* POST */
+	r.Post("/bet", app.BetHandler.CreateBet)
+
+	/* GET */
+	r.Get("/bets/{address}", app.BetHandler.GetBetsByUserAddress)
+	r.Get("/bets/{matchup}/count", app.BetHandler.GetNumberOfBets)
+
 	return r
 }

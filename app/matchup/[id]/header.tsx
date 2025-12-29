@@ -1,11 +1,15 @@
-import { Matchup } from "@/app/hooks/useMatchups";
+import { Matchup, useGetMatchupState } from "@/app/hooks/useMatchups";
 import { getTeamLogo } from "@/components/matchupcard";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CopyIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 
 function Header({ matchup }: { matchup: Matchup }) {
+  const { state, isLoading, error } = useGetMatchupState(
+    matchup.contract_address
+  );
   return (
     <div className="w-full bg-foreground/5 rounded-2xl mt-4 p-4">
       <div className="w-full flex items-center justify-between">
@@ -59,9 +63,16 @@ function Header({ matchup }: { matchup: Matchup }) {
         </div>
       </div>
       <div className="flex flex-col md:flex-row md:items-center gap-1 justify-between mt-6">
-        <p className="text-sm text-foreground/70 font-sans font-semibold md:text-center">
-          Deadline: December 15, 2025
-        </p>
+        <div className="text-sm text-foreground/70 font-sans flex items-center gap-1 font-semibold md:text-center">
+          Deadline:{" "}
+          {error ? (
+            "Error loading deadline"
+          ) : isLoading ? (
+            <Skeleton className="border border-foreground/20 dark:border-foreground/10 rounded-xl w-32 h-6" />
+          ) : (
+            new Date(state?.bettingEnd || "").toLocaleString()
+          )}
+        </div>
         <p className="text-sm text-foreground/70 font-sans font-semibold md:text-center">
           Bet Volume: 1.79M ℏbar ($212,500 )
         </p>

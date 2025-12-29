@@ -21,6 +21,7 @@ type Application struct {
 	MatchupHandler *api.MatchupHandler
 	TeamHandler    *api.TeamHandler
 	PlayerHandler  *api.PlayerHandler
+	BetHandler    *api.BetHandler
 }
 
 func loadEnvironmentVariables() {
@@ -77,11 +78,13 @@ func NewApplication() (*Application, error) {
 	matchupStore := stores.NewPostgresMatchupStore(db)
 	teamsStore := stores.NewPostgresTeamsStore(db)
 	playersStore := stores.NewPostgresPlayersStore(db)
+	betStore := stores.NewPostgresBetStore(db)
 
 	// HANDLERS
 	matchupHandler := api.NewMatchupHandler(logger, client, matchupStore)
 	teamHandler := api.NewTeamHandler(logger, client, teamsStore)
 	playerHandler := api.NewPlayerHandler(logger, client, playersStore)
+	betHandler := api.NewBetHandler(betStore)
 
 	return &Application{
 		Logger:         logger,
@@ -90,6 +93,7 @@ func NewApplication() (*Application, error) {
 		MatchupHandler: matchupHandler,
 		TeamHandler:    teamHandler,
 		PlayerHandler:  playerHandler,
+		BetHandler: betHandler,
 	}, nil
 }
 
